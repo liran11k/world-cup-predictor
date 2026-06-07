@@ -30,27 +30,27 @@ function Field({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="text-right">
-      <div className="text-xs font-semibold text-slate-500 mb-1">{label}</div>
+    <div className="text-right bg-slate-50 rounded-2xl p-3.5 border border-slate-100">
+      <div className="text-xs font-semibold text-emerald-700 mb-1.5">{label}</div>
       {editing ? (
         multiline ? (
           <textarea
             value={value}
             onChange={(e) => onChange(e.target.value)}
             rows={3}
-            className="w-full border border-slate-300 rounded px-2 py-1 text-sm"
+            className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300"
           />
         ) : (
           <input
             type="text"
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full border border-slate-300 rounded px-2 py-1 text-sm"
+            className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300"
           />
         )
       ) : (
-        <p className="text-sm text-slate-700 whitespace-pre-wrap min-h-[1.5em]">
-          {value || <span className="text-slate-400">לא הוזן מידע עדיין</span>}
+        <p className="text-sm text-slate-600 whitespace-pre-wrap min-h-[1.5em] leading-relaxed">
+          {value || <span className="text-slate-400">לא הוזן מידע עדיין — לחץ "עריכה" כדי להוסיף</span>}
         </p>
       )}
     </div>
@@ -104,65 +104,67 @@ export default function TeamModal({ team, onClose, onSave }: Props) {
   const view = editing ? draft : team;
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div
-        className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-[fadeIn_0.15s_ease-out]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
-          <div className="flex items-center gap-3">
+        <div className="bg-gradient-to-l from-emerald-600 to-teal-500 text-white rounded-t-3xl px-6 py-5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             {editing ? (
               <input
                 type="text"
                 value={draft.flag}
                 onChange={(e) => setDraft({ ...draft, flag: e.target.value })}
-                className="w-14 text-2xl text-center border border-slate-300 rounded"
+                className="w-14 text-2xl text-center border border-white/40 bg-white/10 rounded-lg"
               />
             ) : (
-              <span className="text-3xl">{view.flag}</span>
+              <span className="text-4xl drop-shadow">{view.flag}</span>
             )}
-            {editing ? (
-              <input
-                type="text"
-                value={draft.name}
-                onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-                className="text-lg font-bold border border-slate-300 rounded px-2 py-1"
-              />
-            ) : (
-              <h2 className="text-lg font-bold">{view.name}</h2>
-            )}
-            <span className="text-xs text-slate-400">בית {view.group}</span>
+            <div className="min-w-0">
+              {editing ? (
+                <input
+                  type="text"
+                  value={draft.name}
+                  onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+                  className="text-lg font-bold border border-white/40 bg-white/10 rounded-lg px-2 py-1 text-white placeholder-white/60"
+                />
+              ) : (
+                <h2 className="text-xl font-bold truncate">{view.name}</h2>
+              )}
+              <span className="text-xs text-emerald-50/80">בית {view.group}</span>
+            </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 shrink-0">
             {editing ? (
               <>
-                <button onClick={save} className="bg-emerald-600 text-white text-sm px-3 py-1.5 rounded hover:bg-emerald-700">
-                  שמירה
+                <button onClick={save} className="bg-white text-emerald-700 text-sm font-semibold px-3.5 py-1.5 rounded-full hover:bg-emerald-50 transition-colors">
+                  שמירה ✓
                 </button>
-                <button onClick={cancel} className="bg-slate-200 text-sm px-3 py-1.5 rounded hover:bg-slate-300">
+                <button onClick={cancel} className="bg-white/15 text-sm px-3.5 py-1.5 rounded-full hover:bg-white/25 transition-colors">
                   ביטול
                 </button>
               </>
             ) : (
-              <button onClick={startEdit} className="bg-slate-200 text-sm px-3 py-1.5 rounded hover:bg-slate-300">
+              <button onClick={startEdit} className="bg-white/15 text-sm font-medium px-3.5 py-1.5 rounded-full hover:bg-white/25 transition-colors">
                 ✏️ עריכה
               </button>
             )}
-            <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xl px-2">
+            <button onClick={onClose} className="text-white/70 hover:text-white text-2xl leading-none px-1">
               ×
             </button>
           </div>
         </div>
 
-        <div className="flex gap-1 px-5 pt-3 flex-wrap">
+        <div className="flex gap-1.5 px-6 pt-4 flex-wrap">
           {SECTIONS.map((s) => (
             <button
               key={s.id}
               onClick={() => setSection(s.id)}
-              className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+              className={`px-3.5 py-1.5 text-sm font-medium rounded-full border transition-all ${
                 section === s.id
-                  ? 'bg-emerald-600 text-white border-emerald-600'
-                  : 'bg-white text-slate-600 border-slate-300 hover:border-emerald-400'
+                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-100'
+                  : 'bg-white text-slate-500 border-slate-200 hover:border-emerald-300 hover:text-emerald-700'
               }`}
             >
               {s.icon} {s.label}
@@ -170,7 +172,7 @@ export default function TeamModal({ team, onClose, onSave }: Props) {
           ))}
         </div>
 
-        <div className="p-5 space-y-3">
+        <div className="p-6 space-y-3">
           {section === 'squad' && (
             <>
               <Field
