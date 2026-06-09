@@ -270,13 +270,17 @@ header p  { color: rgba(255,255,255,0.65); margin-top: 3px; font-size: 0.88em; }
     </ol>
     <label>Firebase Database URL</label>
     <input type="text" id="fb-url" placeholder="https://your-app-default-rtdb.firebaseio.com">
-    <label>Your Session Code <span style="font-weight:400;text-transform:none;color:#8a9ab0">(same code = same data)</span></label>
+    <label>Session Code <span style="font-weight:400;text-transform:none;color:#8a9ab0">(hidden — auto-included in your link)</span></label>
     <div class="modal-row">
       <input type="text" id="sess-input" readonly>
-      <button class="btn btn-gray btn-sm" onclick="copySession()">📋 Copy</button>
-      <button class="btn btn-gray btn-sm" onclick="newSession()">🔄 New</button>
+      <button class="btn btn-gray btn-sm" onclick="newSession()">🔄 New code</button>
     </div>
-    <p class="hint">Share the full page URL with your session code to view/edit the same bracket on another device</p>
+    <label>Your Shareable Link — open this on any device</label>
+    <div class="modal-row">
+      <input type="text" id="share-url" readonly style="font-size:0.78em;color:#1b5e38;background:#eaf3ec">
+      <button class="btn btn-green btn-sm" onclick="copyShareUrl()">📋 Copy Link</button>
+    </div>
+    <p class="hint">Anyone who opens this link sees and edits the same bracket in real time</p>
     <div class="modal-footer">
       <button class="btn btn-green" onclick="saveSettings()">Save &amp; Enable Sync</button>
       <button class="btn btn-gray"  onclick="closeSettings()">Cancel</button>
@@ -397,17 +401,23 @@ function startPolling(){
 function openSettings(){
   document.getElementById('fb-url').value=DB_URL;
   document.getElementById('sess-input').value=SESSION;
+  document.getElementById('share-url').value=location.origin+location.pathname+'?s='+SESSION;
   document.getElementById('settings-overlay').classList.add('open');
 }
 function closeSettings(){ document.getElementById('settings-overlay').classList.remove('open'); }
 function overlayClick(e){ if(e.target.id==='settings-overlay')closeSettings(); }
-function copySession(){
-  const url=location.origin+location.pathname+'?s='+SESSION;
-  navigator.clipboard.writeText(url).then(()=>alert('Copied! Share this URL:\n'+url));
+function copyShareUrl(){
+  const url=document.getElementById('share-url').value;
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn=document.querySelector('[onclick="copyShareUrl()"]');
+    btn.textContent='✅ Copied!';
+    setTimeout(()=>btn.textContent='📋 Copy Link',2000);
+  });
 }
 function newSession(){
   const s=genId();
   document.getElementById('sess-input').value=s;
+  document.getElementById('share-url').value=location.origin+location.pathname+'?s='+s;
 }
 async function saveSettings(){
   const url=document.getElementById('fb-url').value.trim().replace(/\/$/,'');
@@ -416,6 +426,8 @@ async function saveSettings(){
   DB_URL=url; SESSION=sess||genId();
   localStorage.setItem('wc26_db',DB_URL);
   localStorage.setItem('wc26_sess',SESSION);
+  // Update browser URL so the session code is always in the address bar
+  history.replaceState(null,'',location.pathname+'?s='+SESSION);
   closeSettings();
   if(DB_URL){
     setSyncBadge(false,'☁️ Connecting…');
@@ -763,7 +775,9 @@ async function init(){
   DB_URL=localStorage.getItem('wc26_db')||'';
   const urlParam=new URLSearchParams(location.search).get('s');
   SESSION=urlParam||localStorage.getItem('wc26_sess')||genId();
-  if(!localStorage.getItem('wc26_sess'))localStorage.setItem('wc26_sess',SESSION);
+  localStorage.setItem('wc26_sess',SESSION);
+  // Always show session code in URL so it's easy to copy & share
+  if(!urlParam) history.replaceState(null,'',location.pathname+'?s='+SESSION);
 
   // Load data
   loadLocal();
