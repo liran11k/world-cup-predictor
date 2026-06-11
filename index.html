@@ -342,7 +342,7 @@ header p  { color: rgba(255,255,255,0.65); margin-top: 3px; font-size: 0.88em; }
 
 <script>
 const GROUPS = [
-  {id:'A',teams:[{name:'מקסיקו',f:'🇲🇽'},{name:'דרום אפריקה',f:'🇿🇦'},{name:'דרום קוריאה',f:'🇰🇷'},{name:'צ׳כיה',f:'🇨🇿'}]},
+  {id:'A',teams:[{name:'מקסיקו',f:'🇲🇽'},{name:'דרום אפריקה',f:'🇿🇦'},{name:'דרום קוריאה',f:'🇰🇷'},{name:"צ'כיה",f:'🇨🇿'}]},
   {id:'B',teams:[{name:'קנדה',f:'🇨🇦'},{name:'בוסניה',f:'🇧🇦'},{name:'קטאר',f:'🇶🇦'},{name:'שווייץ',f:'🇨🇭'}]},
   {id:'C',teams:[{name:'ברזיל',f:'🇧🇷'},{name:'מרוקו',f:'🇲🇦'},{name:'האיטי',f:'🇭🇹'},{name:'סקוטלנד',f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿'}]},
   {id:'D',teams:[{name:'ארה״ב',f:'🇺🇸'},{name:'פרגוואי',f:'🇵🇾'},{name:'אוסטרליה',f:'🇦🇺'},{name:'טורקיה',f:'🇹🇷'}]},
@@ -420,10 +420,15 @@ function startPolling(){
   },15000);
 }
 
+function buildShareUrl(){
+  let url=location.origin+location.pathname+'?s='+SESSION;
+  if(DB_URL)url+='&db='+encodeURIComponent(DB_URL);
+  return url;
+}
 function openSettings(){
   document.getElementById('fb-url').value=DB_URL;
   document.getElementById('sess-input').value=SESSION;
-  document.getElementById('share-url').value=location.origin+location.pathname+'?s='+SESSION;
+  document.getElementById('share-url').value=buildShareUrl();
   document.getElementById('settings-overlay').classList.add('open');
 }
 function closeSettings(){ document.getElementById('settings-overlay').classList.remove('open'); }
@@ -439,7 +444,10 @@ function copyShareUrl(){
 function newSession(){
   const s=genId();
   document.getElementById('sess-input').value=s;
-  document.getElementById('share-url').value=location.origin+location.pathname+'?s='+s;
+  let url=location.origin+location.pathname+'?s='+s;
+  const dbUrl=document.getElementById('fb-url').value.trim().replace(/\/$/,'');
+  if(dbUrl)url+='&db='+encodeURIComponent(dbUrl);
+  document.getElementById('share-url').value=url;
 }
 async function saveSettings(){
   const url=document.getElementById('fb-url').value.trim().replace(/\/$/,'');
@@ -448,7 +456,7 @@ async function saveSettings(){
   DB_URL=url; SESSION=sess||genId();
   localStorage.setItem('wc26_db',DB_URL);
   localStorage.setItem('wc26_sess',SESSION);
-  history.replaceState(null,'',location.pathname+'?s='+SESSION);
+  history.replaceState(null,'',buildShareUrl());
   closeSettings();
   if(DB_URL){
     setSyncBadge(false,'☁️ מתחבר…');
@@ -517,13 +525,61 @@ function best3rd(){
     });
 }
 
-const R32S=[['A','B'],['C','D'],['E','F'],['G','H'],['I','J'],['K','L'],
-            ['B','A'],['D','C'],['F','E'],['H','G'],['J','I'],['L','K']];
+// Round of 32 fixtures (matches 73-88), per the official FIFA 2026 bracket structure:
+// each slot is either a fixed group position (1st/2nd) or a best-third-place slot
+// with the set of groups whose 3rd-place team could fill it.
+const R32_FIXTURES=[
+  [{p:'2',g:'A'},{p:'2',g:'B'}],                                  // M73
+  [{p:'1',g:'E'},{p:'3',c:['A','B','C','D','F']}],                // M74
+  [{p:'1',g:'F'},{p:'2',g:'C'}],                                  // M75
+  [{p:'1',g:'C'},{p:'2',g:'F'}],                                  // M76
+  [{p:'1',g:'I'},{p:'3',c:['C','D','F','G','H']}],                // M77
+  [{p:'2',g:'E'},{p:'2',g:'I'}],                                  // M78
+  [{p:'1',g:'A'},{p:'3',c:['C','E','F','H','I']}],                // M79
+  [{p:'1',g:'L'},{p:'3',c:['E','H','I','J','K']}],                // M80
+  [{p:'1',g:'D'},{p:'3',c:['B','E','F','I','J']}],                // M81
+  [{p:'1',g:'G'},{p:'3',c:['A','E','H','I','J']}],                // M82
+  [{p:'2',g:'K'},{p:'2',g:'L'}],                                  // M83
+  [{p:'1',g:'H'},{p:'2',g:'J'}],                                  // M84
+  [{p:'1',g:'B'},{p:'3',c:['E','F','G','I','J']}],                // M85
+  [{p:'1',g:'J'},{p:'2',g:'H'}],                                  // M86
+  [{p:'1',g:'K'},{p:'3',c:['D','E','I','J','L']}],                // M87
+  [{p:'2',g:'D'},{p:'2',g:'G'}],                                  // M88
+];
+// Assign the 8 best third-placed teams to the eligible R32 slots using
+// bipartite matching (Kuhn's algorithm), so every slot gets a team
+// whenever a valid assignment exists for the given group combination.
+function assignThirds(){
+  const b8=best3rd().slice(0,8);
+  const slots=[];
+  R32_FIXTURES.forEach((pair,idx)=>pair.forEach((slot,si)=>{
+    if(slot.p==='3')slots.push({idx,si,c:slot.c});
+  }));
+  const slotTeam=new Array(slots.length).fill(-1);
+  function tryAssign(ti,visited){
+    for(let si=0;si<slots.length;si++){
+      if(!slots[si].c.includes(b8[ti].group)||visited.has(si))continue;
+      visited.add(si);
+      if(slotTeam[si]===-1||tryAssign(slotTeam[si],visited)){slotTeam[si]=ti;return true;}
+    }
+    return false;
+  }
+  b8.forEach((t,ti)=>tryAssign(ti,new Set()));
+  const assignment={};
+  slots.forEach((s,si)=>{if(slotTeam[si]!==-1)assignment[s.idx+'_'+s.si]=b8[slotTeam[si]].team;});
+  return assignment;
+}
+function resolveSlot(slot,q,thirds,idx,si){
+  if(slot.p==='1')return q[slot.g].first;
+  if(slot.p==='2')return q[slot.g].second;
+  return thirds[idx+'_'+si]||null;
+}
 function koTeams(round,idx){
-  const q=quals(),b3=best3rd().slice(0,8).map(x=>x.team);
+  const q=quals();
   if(round==='r32'){
-    if(idx<12){const[hg,ag]=R32S[idx];return[q[hg].first,q[ag].second];}
-    const bi=(idx-12)*2;return[b3[bi]||null,b3[bi+1]||null];
+    const thirds=assignThirds();
+    const[hSlot,aSlot]=R32_FIXTURES[idx];
+    return[resolveSlot(hSlot,q,thirds,idx,0),resolveSlot(aSlot,q,thirds,idx,1)];
   }
   if(round==='r16'){const P=[[0,1],[2,3],[4,5],[6,7],[8,9],[10,11],[12,13],[14,15]];const[a,b]=P[idx];return[winner('r32',a),winner('r32',b)];}
   if(round==='qf'){const P=[[0,1],[2,3],[4,5],[6,7]];const[a,b]=P[idx];return[winner('r16',a),winner('r16',b)];}
@@ -840,11 +896,18 @@ function closeTeamModal(e){
 }
 
 async function init(){
-  DB_URL=localStorage.getItem('wc26_db')||'';
-  const urlParam=new URLSearchParams(location.search).get('s');
+  const params=new URLSearchParams(location.search);
+  const urlParam=params.get('s');
+  const dbParam=params.get('db');
   SESSION=urlParam||localStorage.getItem('wc26_sess')||genId();
   localStorage.setItem('wc26_sess',SESSION);
-  if(!urlParam)history.replaceState(null,'',location.pathname+'?s='+SESSION);
+  if(dbParam){
+    DB_URL=decodeURIComponent(dbParam);
+    localStorage.setItem('wc26_db',DB_URL);
+  } else {
+    DB_URL=localStorage.getItem('wc26_db')||'';
+  }
+  history.replaceState(null,'',buildShareUrl());
   loadLocal();
   await loadTeamsData();
   if(DB_URL){
