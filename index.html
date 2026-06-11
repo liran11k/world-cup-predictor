@@ -220,6 +220,55 @@ header p  { color: rgba(255,255,255,0.65); margin-top: 3px; font-size: 0.88em; }
   display: inline-block; min-width: 240px; background: #fff;
   border: 1px solid #dde3ed; border-top: none; border-radius: 0 0 6px 6px;
 }
+
+/* Teams Tab */
+#teams-tab { padding: 20px; }
+.teams-search {
+  max-width: 680px; margin: 0 auto 20px;
+  display: flex; gap: 8px;
+}
+.teams-search input {
+  flex: 1; padding: 10px 14px; border: 1px solid #c8d5de; border-radius: 6px;
+  font-size: 0.9em; color: #1a2535; background: #f8fafc;
+}
+.teams-search input:focus { outline: none; border-color: #1b5e38; }
+.teams-grid { max-width: 680px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.team-btn {
+  padding: 12px 10px; background: #fff; border: 1px solid #dde3ed; border-radius: 8px;
+  cursor: pointer; font-size: 0.85em; text-align: center; transition: all 0.2s;
+  font-weight: 600; color: #1b5e38;
+}
+.team-btn:hover { background: #eaf3ec; border-color: #7ac89a; box-shadow: 0 2px 6px rgba(27,94,56,0.12); }
+.team-btn-flag { font-size: 1.8em; display: block; margin-bottom: 4px; }
+
+/* Team Modal */
+.team-modal { max-width: 680px; max-height: 85vh; overflow-y: auto; }
+.team-detail { color: #4a5a6a; }
+.team-detail h3 { color: #1b5e38; font-size: 1.3em; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.team-detail h4 { color: #5a6a7a; font-size: 1em; margin-top: 14px; margin-bottom: 6px; font-weight: 700; }
+.team-stat-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f2f6; font-size: 0.88em; }
+.team-stat-row:last-child { border-bottom: none; }
+.team-stat-label { color: #8a9ab0; }
+.team-stat-value { color: #1a2535; font-weight: 600; }
+.rating-bar {
+  display: inline-flex; align-items: center; gap: 8px; font-size: 0.82em;
+}
+.rating-fill { display: inline-flex; height: 6px; width: 100px; background: #eef0f4; border-radius: 3px; overflow: hidden; }
+.rating-fill-colored { height: 100%; background: #1b5e38; }
+.player-list { font-size: 0.85em; margin-top: 6px; }
+.player-item { padding: 5px 0; color: #5a6a7a; }
+.player-pos { color: #8a9ab0; font-size: 0.8em; }
+.fact-box { background: #fdf7e3; border: 1px solid #e8d060; border-radius: 6px; padding: 10px; margin-top: 8px; font-size: 0.85em; line-height: 1.5; color: #5a4a2a; }
+
+/* Match Hover Tooltip */
+.match-row { position: relative; }
+.match-tooltip {
+  display: none; position: absolute; bottom: 100%; right: 0; background: #1a2535;
+  color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 0.75em; z-index: 10;
+  white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.25); margin-bottom: 4px;
+  direction: ltr; text-align: left;
+}
+.match-row:hover .match-tooltip { display: block; }
 </style>
 </head>
 <body>
@@ -275,11 +324,21 @@ header p  { color: rgba(255,255,255,0.65); margin-top: 3px; font-size: 0.88em; }
   <button class="tab-btn active" onclick="switchTab('groups')">🏟 שלב הבתים</button>
   <button class="tab-btn"        onclick="switchTab('third')">🥉 מקום שלישי</button>
   <button class="tab-btn"        onclick="switchTab('bracket')">🏆 שלב הנוקאאוט</button>
+  <button class="tab-btn"        onclick="switchTab('teams')">📋 נבחרות</button>
 </div>
 
 <div id="groups-tab"  class="tab-content active"><div class="groups-grid" id="groups-grid"></div></div>
 <div id="third-tab"   class="tab-content"><div id="third-content"></div></div>
 <div id="bracket-tab" class="tab-content"><div id="bracket-content"></div></div>
+<div id="teams-tab"   class="tab-content"><div id="teams-content"></div></div>
+
+<!-- Team Detail Modal -->
+<div id="team-overlay" class="overlay" onclick="closeTeamModal(event)">
+  <div class="modal team-modal">
+    <button class="modal-close" onclick="closeTeamModal()">✕</button>
+    <div id="team-detail"></div>
+  </div>
+</div>
 
 <script>
 const GROUPS = [
@@ -302,6 +361,7 @@ const PAIRS=[[0,1],[2,3],[0,2],[1,3],[0,3],[1,2]];
 let GS={}, KS={};
 let DB_URL='', SESSION='';
 let syncTimer=null, lastPush=0;
+let TEAMS_DATA=null;
 
 function genId(){ return Math.random().toString(36).slice(2,8).toUpperCase(); }
 function loadLocal(){
@@ -487,13 +547,25 @@ function renderAll(){ renderGroups(); renderThird(); renderBracket(); }
 function stRow(tm,pos){
   const rc=['p1','p2','p3','p4'][pos],pb=['pb1','pb2','pb3','pb4'][pos];
   const gd=tm.gd>=0?'+'+tm.gd:tm.gd;
-  return`<tr class="${rc}"><td><span class="pos-badge ${pb}">${pos+1}</span>${tm.f} ${tm.name}</td>
+  return`<tr class="${rc}"><td><span class="pos-badge ${pb}">${pos+1}</span>${tm.f} <a href="#" style="color:#1b5e38;text-decoration:none;cursor:pointer" onclick="event.preventDefault();openTeamModal('${tm.name}')">${tm.name}</a></td>
     <td>${tm.p}</td><td><b>${tm.pts}</b></td><td>${tm.w}</td><td>${tm.d}</td><td>${tm.l}</td>
     <td>${tm.gf}</td><td>${tm.ga}</td><td>${gd}</td></tr>`;
 }
 function renderGroups(){
   document.getElementById('groups-grid').innerHTML=GROUPS.map(groupHTML).join('');
 }
+function getPrediction(homeTeam,awayTeam){
+  if(!TEAMS_DATA)return null;
+  const h=TEAMS_DATA.find(t=>t.name===homeTeam.name);
+  const a=TEAMS_DATA.find(t=>t.name===awayTeam.name);
+  if(!h||!a)return null;
+  const hScore=h.offense.rating-a.defense.rating;
+  const aScore=a.offense.rating-h.defense.rating;
+  if(hScore>aScore+1)return `ניצחון ${homeTeam.f}`;
+  if(aScore>hScore+1)return `ניצחון ${awayTeam.f}`;
+  return 'תיקו אפשרי';
+}
+
 function groupHTML(group){
   const gid=group.id,gi=GROUPS.indexOf(group),base=gi*6+1;
   const st=standings(gid);
@@ -503,9 +575,10 @@ function groupHTML(group){
     p.forEach(([hi,ai])=>{
       const key=gid+'_'+mi,sc=GS[key]||{h:'',a:''};
       const ht=group.teams[hi],at=group.teams[ai];
+      const pred=getPrediction(ht,at);
       mhtml+=`<div class="match-row">
         <span class="mnum">${base+mi}</span>
-        <span class="mtn">${ht.f} ${ht.name}</span>
+        <span class="mtn" onclick="event.preventDefault();openTeamModal('${ht.name}')" style="cursor:pointer;text-decoration:underline">${ht.f} ${ht.name}</span>
         <div class="msw">
           <input type="number" min="0" class="score-input" value="${sc.h===undefined?'':sc.h}"
             oninput="onGS(this)" data-g="${gid}" data-m="${mi}" data-s="h">
@@ -513,7 +586,8 @@ function groupHTML(group){
           <input type="number" min="0" class="score-input" value="${sc.a===undefined?'':sc.a}"
             oninput="onGS(this)" data-g="${gid}" data-m="${mi}" data-s="a">
         </div>
-        <span class="mtn away">${at.name} ${at.f}</span>
+        <span class="mtn away" onclick="event.preventDefault();openTeamModal('${at.name}')" style="cursor:pointer;text-decoration:underline">${at.name} ${at.f}</span>
+        ${pred?`<div class="match-tooltip">📊 ${pred}</div>`:''}
       </div>`;
       mi++;
     });
@@ -679,10 +753,79 @@ function onKO(input){
 
 function switchTab(tab){
   document.querySelectorAll('.tab-btn').forEach((b,i)=>
-    b.classList.toggle('active',['groups','third','bracket'][i]===tab));
+    b.classList.toggle('active',['groups','third','bracket','teams'][i]===tab));
   document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
   document.getElementById(tab+'-tab').classList.add('active');
   if(tab==='bracket')requestAnimationFrame(drawConnectors);
+  if(tab==='teams')renderTeams();
+}
+
+// ── TEAMS ─────────────────────────────────────────────────────
+async function loadTeamsData(){
+  if(TEAMS_DATA)return;
+  try{
+    const res=await fetch('teams-data.json');
+    TEAMS_DATA=await res.json();
+  }catch(e){console.error('Failed to load teams data',e);}
+}
+
+function findTeam(name){
+  if(!TEAMS_DATA)return null;
+  return TEAMS_DATA.find(t=>t.name===name);
+}
+
+function renderTeams(){
+  if(!TEAMS_DATA)return;
+  const search=document.getElementById('teams-search')?.value.toLowerCase()||'';
+  const list=TEAMS_DATA.filter(t=>t.name.toLowerCase().includes(search)||t.nameHe.includes(search));
+  const grid=`<div class="teams-search">
+    <input type="text" id="teams-search" placeholder="חפשו קבוצה..." oninput="renderTeams()">
+  </div>
+  <div class="teams-grid">${list.map(t=>`
+    <button class="team-btn" onclick="openTeamModal('${t.name}')">
+      <span class="team-btn-flag">${GROUPS.flatMap(g=>g.teams).find(tm=>tm.name===t.name)?.f||'🌍'}</span>
+      ${t.nameHe}
+    </button>
+  `).join('')}</div>`;
+  document.getElementById('teams-content').innerHTML=grid;
+}
+
+function openTeamModal(teamName){
+  const t=findTeam(teamName);
+  if(!t)return;
+  const flag=GROUPS.flatMap(g=>g.teams).find(tm=>tm.name===teamName)?.f||'🌍';
+  const off=t.offense.rating, def=t.defense.rating;
+  const html=`<h3>${flag} ${t.nameHe}</h3>
+  <div class="team-stat-row"><span class="team-stat-label">דירוג FIFA</span><span class="team-stat-value">#${t.fifa_ranking}</span></div>
+  <div class="team-stat-row"><span class="team-stat-label">מאמן</span><span class="team-stat-value">${t.coach}</span></div>
+  <h4>התאמה לטורניר</h4>
+  <div class="team-stat-row"><span class="team-stat-label">${t.qualification}</span></div>
+  <h4>סגנון משחק</h4>
+  <p style="font-size:0.85em;margin-bottom:10px">${t.style}</p>
+  <h4>עוצמה התקפה / הגנה</h4>
+  <div style="font-size:0.85em;margin-bottom:10px">
+    <div>התקפה: <span style="float:left">${off}/10</span><div class="rating-fill"><div class="rating-fill-colored" style="width:${off*10}%"></div></div></div>
+    <p style="font-size:0.82em;color:#8a9ab0;margin-top:4px;margin-bottom:0">התקפה: ${t.offense.explanation}</p>
+    <div style="margin-top:12px">הגנה: <span style="float:left">${def}/10</span><div class="rating-fill"><div class="rating-fill-colored" style="width:${def*10}%"></div></div></div>
+    <p style="font-size:0.82em;color:#8a9ab0;margin-top:4px;margin-bottom:0">הגנה: ${t.defense.explanation}</p>
+  </div>
+  <h4>שחקנים מרכזיים</h4>
+  <div class="player-list">${t.key_players.map(p=>`<div class="player-item">⚽ <b>${p.name}</b> <span class="player-pos">${p.position} • ${p.club}</span></div>`).join('')}</div>
+  <h4>מצב קליניקי</h4>
+  <p style="font-size:0.85em">${t.form}</p>
+  <h4>היסטוריית גביע העולם</h4>
+  <p style="font-size:0.85em">${t.world_cup_history}</p>
+  <h4>📖 עובדה מעניינת</h4>
+  <div class="fact-box">${t.interesting_fact}</div>
+  <h4>ניתוח וטיפול</h4>
+  <p style="font-size:0.85em">${t.prediction_notes}</p>`;
+  document.getElementById('team-detail').innerHTML=html;
+  document.getElementById('team-overlay').classList.add('open');
+}
+
+function closeTeamModal(e){
+  if(e&&e.target.id!=='team-overlay')return;
+  document.getElementById('team-overlay').classList.remove('open');
 }
 
 async function init(){
@@ -692,6 +835,7 @@ async function init(){
   localStorage.setItem('wc26_sess',SESSION);
   if(!urlParam)history.replaceState(null,'',location.pathname+'?s='+SESSION);
   loadLocal();
+  await loadTeamsData();
   if(DB_URL){
     setSyncBadge(false,'☁️ טוען…');
     await pullCloud();
