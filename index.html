@@ -869,6 +869,10 @@ function openTeamModal(teamName){
   <p style="font-size:0.85em;margin-bottom:10px">${t.qualification}</p>
   <h4>סגנון משחק</h4>
   <p style="font-size:0.85em;margin-bottom:10px">${t.style}</p>
+  ${t.qualifying_results_he?`<h4>📊 איך הם הגיעו לכאן (מוקדמות)</h4>
+  <p style="font-size:0.85em;margin-bottom:10px">${t.qualifying_results_he}</p>`:''}
+  ${t.style_matchups_he?`<h4>⚔️ מול איזה סגנון הם מתקשים</h4>
+  <p style="font-size:0.85em;margin-bottom:10px">${t.style_matchups_he}</p>`:''}
   <h4>עוצמה התקפה / הגנה</h4>
   <div style="font-size:0.85em;margin-bottom:10px">
     <div>התקפה: <span style="float:left">${off}/10</span><div class="rating-fill"><div class="rating-fill-colored" style="width:${off*10}%"></div></div></div>
