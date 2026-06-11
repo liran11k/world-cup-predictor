@@ -793,6 +793,16 @@ function renderTeams(){
   document.getElementById('teams-content').innerHTML=grid;
 }
 
+const POS_HE={
+  'Striker':'חלוץ','Forward':'חלוץ','Center-back':'בלם','Midfielder':'קשר',
+  'Winger':'כנף','Goalkeeper':'שוער','Left-back':'מגן שמאלי','Right-back':'מגן ימני',
+  'Attacking Midfielder':'קשר התקפי','Defender':'מגן','Left Winger':'כנף שמאלית',
+  'Right Winger':'כנף ימנית','Winger/Midfielder':'כנף/קשר','Left-back/Winger':'מגן שמאלי/כנף',
+  'Forward/Midfielder':'חלוץ/קשר','Midfielder/Winger':'קשר/כנף',
+  'Center-back/Midfielder':'בלם/קשר','Forward (Saudi league influence)':'חלוץ'
+};
+function posHe(p){return POS_HE[p]||p;}
+
 function openTeamModal(teamName){
   const t=findTeam(teamName);
   if(!t)return;
@@ -823,7 +833,7 @@ function openTeamModal(teamName){
     <p style="font-size:0.82em;color:#8a9ab0;margin-top:4px;margin-bottom:0">${defExp}</p>
   </div>
   <h4>שחקנים מרכזיים</h4>
-  <div class="player-list">${t.key_players.map(p=>`<div class="player-item">⚽ <b>${p.name}</b> <span class="player-pos">${p.position} • ${p.club}</span></div>`).join('')}</div>
+  <div class="player-list">${t.key_players.map(p=>`<div class="player-item">⚽ <b>${p.name}</b> <span class="player-pos">${posHe(p.position)} · ${p.club}</span></div>`).join('')}</div>
   <h4>פורמה נוכחית</h4>
   <p style="font-size:0.85em">${form}</p>
   <h4>היסטוריית גביע העולם</h4>
