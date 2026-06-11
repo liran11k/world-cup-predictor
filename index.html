@@ -559,11 +559,17 @@ function getPrediction(homeTeam,awayTeam){
   const h=findTeam(homeTeam.name);
   const a=findTeam(awayTeam.name);
   if(!h||!a)return null;
-  const hScore=h.offense.rating-a.defense.rating;
-  const aScore=a.offense.rating-h.defense.rating;
-  if(hScore>aScore+1)return `ניצחון ${homeTeam.f}`;
-  if(aScore>hScore+1)return `ניצחון ${awayTeam.f}`;
-  return 'תיקו אפשרי';
+  const hOff=h.offense.rating, hDef=h.defense.rating;
+  const aOff=a.offense.rating, aDef=a.defense.rating;
+  const hRank=h.fifa_ranking, aRank=a.fifa_ranking;
+  const rankAdv=(aRank-hRank)/30;
+  const hExpG=Math.max(0,Math.min(5,((hOff-aDef)*0.35+rankAdv*0.4+1.2)));
+  const aExpG=Math.max(0,Math.min(5,((aOff-hDef)*0.35-rankAdv*0.4+1.0)));
+  const hG=Math.round(hExpG), aG=Math.round(aExpG);
+  const hName=homeTeam.name, aName=awayTeam.name;
+  if(hG>aG)return `${homeTeam.f} ${hG}-${aG} · צפי ניצחון ${hName}`;
+  if(aG>hG)return `${aG}-${hG} ${awayTeam.f} · צפי ניצחון ${aName}`;
+  return `${hG}-${aG} · צפי תיקו`;
 }
 
 function groupHTML(group){
@@ -793,55 +799,37 @@ function renderTeams(){
   document.getElementById('teams-content').innerHTML=grid;
 }
 
-const POS_HE={
-  'Striker':'חלוץ','Forward':'חלוץ','Center-back':'בלם','Midfielder':'קשר',
-  'Winger':'כנף','Goalkeeper':'שוער','Left-back':'מגן שמאלי','Right-back':'מגן ימני',
-  'Attacking Midfielder':'קשר התקפי','Defender':'מגן','Left Winger':'כנף שמאלית',
-  'Right Winger':'כנף ימנית','Winger/Midfielder':'כנף/קשר','Left-back/Winger':'מגן שמאלי/כנף',
-  'Forward/Midfielder':'חלוץ/קשר','Midfielder/Winger':'קשר/כנף',
-  'Center-back/Midfielder':'בלם/קשר','Forward (Saudi league influence)':'חלוץ'
-};
-function posHe(p){return POS_HE[p]||p;}
-
 function openTeamModal(teamName){
   const t=findTeam(teamName);
   if(!t)return;
   const flag=teamFlag(teamName);
   const off=t.offense.rating, def=t.defense.rating;
-  const qual=t.qualification_he||t.qualification;
-  const style=t.style_he||t.style;
-  const offExp=t.offense_he||t.offense.explanation;
-  const defExp=t.defense_he||t.defense.explanation;
-  const form=t.form_he||t.form;
-  const wch=t.world_cup_history_he||t.world_cup_history;
-  const fact=t.interesting_fact_he||t.interesting_fact;
-  const pred=t.prediction_notes_he||t.prediction_notes;
   const userNote=t.user_note||'';
   const html=`<h3>${flag} ${t.nameHe}</h3>
   <div class="team-stat-row"><span class="team-stat-label">דירוג FIFA</span><span class="team-stat-value">#${t.fifa_ranking}</span></div>
   <div class="team-stat-row"><span class="team-stat-label">מאמן</span><span class="team-stat-value">${t.coach}</span></div>
   ${userNote?`<h4>📝 הערות אישיות</h4><div class="fact-box" style="background:#eaf3ec;border-color:#9acaaa;color:#1b5e38">${userNote}</div>`:''}
   <h4>העפלה</h4>
-  <p style="font-size:0.85em;margin-bottom:10px">${qual}</p>
+  <p style="font-size:0.85em;margin-bottom:10px">${t.qualification}</p>
   <h4>סגנון משחק</h4>
-  <p style="font-size:0.85em;margin-bottom:10px">${style}</p>
+  <p style="font-size:0.85em;margin-bottom:10px">${t.style}</p>
   <h4>עוצמה התקפה / הגנה</h4>
   <div style="font-size:0.85em;margin-bottom:10px">
     <div>התקפה: <span style="float:left">${off}/10</span><div class="rating-fill"><div class="rating-fill-colored" style="width:${off*10}%"></div></div></div>
-    <p style="font-size:0.82em;color:#8a9ab0;margin-top:4px;margin-bottom:0">${offExp}</p>
+    <p style="font-size:0.82em;color:#8a9ab0;margin-top:4px;margin-bottom:0">${t.offense.explanation}</p>
     <div style="margin-top:12px">הגנה: <span style="float:left">${def}/10</span><div class="rating-fill"><div class="rating-fill-colored" style="width:${def*10}%"></div></div></div>
-    <p style="font-size:0.82em;color:#8a9ab0;margin-top:4px;margin-bottom:0">${defExp}</p>
+    <p style="font-size:0.82em;color:#8a9ab0;margin-top:4px;margin-bottom:0">${t.defense.explanation}</p>
   </div>
   <h4>שחקנים מרכזיים</h4>
-  <div class="player-list">${t.key_players.map(p=>`<div class="player-item">⚽ <b>${p.name}</b> <span class="player-pos">${posHe(p.position)} · ${p.club}</span></div>`).join('')}</div>
+  <div class="player-list">${t.key_players.map(p=>`<div class="player-item">⚽ <b>${p.name}</b> <span class="player-pos">${p.position} · ${p.club}</span></div>`).join('')}</div>
   <h4>פורמה נוכחית</h4>
-  <p style="font-size:0.85em">${form}</p>
+  <p style="font-size:0.85em">${t.form}</p>
   <h4>היסטוריית גביע העולם</h4>
-  <p style="font-size:0.85em">${wch}</p>
+  <p style="font-size:0.85em">${t.world_cup_history}</p>
   <h4>📖 עובדה מעניינת</h4>
-  <div class="fact-box">${fact}</div>
+  <div class="fact-box">${t.interesting_fact}</div>
   <h4>תחזית</h4>
-  <p style="font-size:0.85em">${pred}</p>`;
+  <p style="font-size:0.85em">${t.prediction_notes}</p>`;
   document.getElementById('team-detail').innerHTML=html;
   document.getElementById('team-overlay').classList.add('open');
 }
