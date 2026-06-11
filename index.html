@@ -556,8 +556,8 @@ function renderGroups(){
 }
 function getPrediction(homeTeam,awayTeam){
   if(!TEAMS_DATA)return null;
-  const h=TEAMS_DATA.find(t=>t.name===homeTeam.name);
-  const a=TEAMS_DATA.find(t=>t.name===awayTeam.name);
+  const h=findTeam(homeTeam.name);
+  const a=findTeam(awayTeam.name);
   if(!h||!a)return null;
   const hScore=h.offense.rating-a.defense.rating;
   const aScore=a.offense.rating-h.defense.rating;
@@ -617,7 +617,7 @@ function renderThird(){
   const rows=list.map((item,i)=>{
     const t=item.team,q=i<8,gd=t.gd>=0?'+'+t.gd:t.gd;
     return`<tr class="${q?'tq':'te'}"><td>${i+1}</td>
-      <td>${t.f} ${t.name} <span style="color:#a0b0ba">(בית ${item.group})</span></td>
+      <td>${t.f} <a href="#" style="color:#1b5e38;text-decoration:none;cursor:pointer" onclick="event.preventDefault();openTeamModal('${t.name}')">${t.name}</a> <span style="color:#a0b0ba">(בית ${item.group})</span></td>
       <td>${t.p}</td><td><b>${t.pts}</b></td><td>${t.gf}</td><td>${t.ga}</td><td>${gd}</td>
       <td class="${q?'bq':'be'}">${q?'✓ עולה':'—'}</td></tr>`;
   }).join('');
@@ -635,7 +635,7 @@ function matchCard(round,idx,isFinal=false){
   const[h,a]=koTeams(round,idx),sc=KS[round+'_'+idx]||{h:'',a:''},res=koRes(round,idx);
   const tRow=(team,side)=>{
     const won=res===side,lost=res&&res!==side;
-    const disp=team?`${team.f} ${team.name}`:`<span class="bt-tbd">טרם נקבע</span>`;
+    const disp=team?`${team.f} <a href="#" style="color:inherit;text-decoration:none;cursor:pointer" onclick="event.preventDefault();event.stopPropagation();openTeamModal('${team.name}')">${team.name}</a>`:`<span class="bt-tbd">טרם נקבע</span>`;
     return`<div class="bt ${won?'won':''} ${lost?'lost':''}">
       <span class="bt-name">${disp}</span>
       <input type="number" min="0" class="bs" value="${sc[side]===undefined?'':sc[side]}"
@@ -771,7 +771,10 @@ async function loadTeamsData(){
 
 function findTeam(name){
   if(!TEAMS_DATA)return null;
-  return TEAMS_DATA.find(t=>t.name===name);
+  return TEAMS_DATA.find(t=>t.name===name||t.nameHe===name);
+}
+function teamFlag(name){
+  return GROUPS.flatMap(g=>g.teams).find(tm=>tm.name===name)?.f||'🌍';
 }
 
 function renderTeams(){
@@ -782,8 +785,8 @@ function renderTeams(){
     <input type="text" id="teams-search" placeholder="חפשו קבוצה..." oninput="renderTeams()">
   </div>
   <div class="teams-grid">${list.map(t=>`
-    <button class="team-btn" onclick="openTeamModal('${t.name}')">
-      <span class="team-btn-flag">${GROUPS.flatMap(g=>g.teams).find(tm=>tm.name===t.name)?.f||'🌍'}</span>
+    <button class="team-btn" onclick="openTeamModal('${t.nameHe}')">
+      <span class="team-btn-flag">${teamFlag(t.nameHe)}</span>
       ${t.nameHe}
     </button>
   `).join('')}</div>`;
@@ -793,32 +796,42 @@ function renderTeams(){
 function openTeamModal(teamName){
   const t=findTeam(teamName);
   if(!t)return;
-  const flag=GROUPS.flatMap(g=>g.teams).find(tm=>tm.name===teamName)?.f||'🌍';
+  const flag=teamFlag(teamName);
   const off=t.offense.rating, def=t.defense.rating;
+  const qual=t.qualification_he||t.qualification;
+  const style=t.style_he||t.style;
+  const offExp=t.offense_he||t.offense.explanation;
+  const defExp=t.defense_he||t.defense.explanation;
+  const form=t.form_he||t.form;
+  const wch=t.world_cup_history_he||t.world_cup_history;
+  const fact=t.interesting_fact_he||t.interesting_fact;
+  const pred=t.prediction_notes_he||t.prediction_notes;
+  const userNote=t.user_note||'';
   const html=`<h3>${flag} ${t.nameHe}</h3>
   <div class="team-stat-row"><span class="team-stat-label">דירוג FIFA</span><span class="team-stat-value">#${t.fifa_ranking}</span></div>
   <div class="team-stat-row"><span class="team-stat-label">מאמן</span><span class="team-stat-value">${t.coach}</span></div>
-  <h4>התאמה לטורניר</h4>
-  <div class="team-stat-row"><span class="team-stat-label">${t.qualification}</span></div>
+  ${userNote?`<h4>📝 הערות אישיות</h4><div class="fact-box" style="background:#eaf3ec;border-color:#9acaaa;color:#1b5e38">${userNote}</div>`:''}
+  <h4>העפלה</h4>
+  <p style="font-size:0.85em;margin-bottom:10px">${qual}</p>
   <h4>סגנון משחק</h4>
-  <p style="font-size:0.85em;margin-bottom:10px">${t.style}</p>
+  <p style="font-size:0.85em;margin-bottom:10px">${style}</p>
   <h4>עוצמה התקפה / הגנה</h4>
   <div style="font-size:0.85em;margin-bottom:10px">
     <div>התקפה: <span style="float:left">${off}/10</span><div class="rating-fill"><div class="rating-fill-colored" style="width:${off*10}%"></div></div></div>
-    <p style="font-size:0.82em;color:#8a9ab0;margin-top:4px;margin-bottom:0">התקפה: ${t.offense.explanation}</p>
+    <p style="font-size:0.82em;color:#8a9ab0;margin-top:4px;margin-bottom:0">${offExp}</p>
     <div style="margin-top:12px">הגנה: <span style="float:left">${def}/10</span><div class="rating-fill"><div class="rating-fill-colored" style="width:${def*10}%"></div></div></div>
-    <p style="font-size:0.82em;color:#8a9ab0;margin-top:4px;margin-bottom:0">הגנה: ${t.defense.explanation}</p>
+    <p style="font-size:0.82em;color:#8a9ab0;margin-top:4px;margin-bottom:0">${defExp}</p>
   </div>
   <h4>שחקנים מרכזיים</h4>
   <div class="player-list">${t.key_players.map(p=>`<div class="player-item">⚽ <b>${p.name}</b> <span class="player-pos">${p.position} • ${p.club}</span></div>`).join('')}</div>
-  <h4>מצב קליניקי</h4>
-  <p style="font-size:0.85em">${t.form}</p>
+  <h4>פורמה נוכחית</h4>
+  <p style="font-size:0.85em">${form}</p>
   <h4>היסטוריית גביע העולם</h4>
-  <p style="font-size:0.85em">${t.world_cup_history}</p>
+  <p style="font-size:0.85em">${wch}</p>
   <h4>📖 עובדה מעניינת</h4>
-  <div class="fact-box">${t.interesting_fact}</div>
-  <h4>ניתוח וטיפול</h4>
-  <p style="font-size:0.85em">${t.prediction_notes}</p>`;
+  <div class="fact-box">${fact}</div>
+  <h4>תחזית</h4>
+  <p style="font-size:0.85em">${pred}</p>`;
   document.getElementById('team-detail').innerHTML=html;
   document.getElementById('team-overlay').classList.add('open');
 }
