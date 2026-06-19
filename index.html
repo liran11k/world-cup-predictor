@@ -122,9 +122,16 @@ header p  { color: rgba(255,255,255,0.65); margin-top: 3px; font-size: 0.88em; }
 .matches-section h4 { color: #b0bcc8; font-size: 0.72em; letter-spacing: 1px; margin-bottom: 7px; }
 .matchday-div { font-size: 0.7em; color: #b8c4d0; letter-spacing: 1px; margin: 6px 0 3px; }
 .match-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; font-size: 0.83em; }
+.msw { display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0; }
+.msw-scores { display: flex; align-items: center; gap: 3px; }
+.actual-badge { font-size: 0.72em; padding: 1px 7px; border-radius: 9px; font-weight: 700; white-space: nowrap; }
+.actual-badge.exact    { background: #d4f4e2; color: #1b5e38; border: 1px solid #7ac89a; }
+.actual-badge.direction{ background: #fff8e1; color: #7a5d00; border: 1px solid #ffc107; }
+.actual-badge.wrong    { background: #fde8e8; color: #8b1a1a; border: 1px solid #f5aaaa; }
+.actual-badge.neutral  { background: #f0f3f7; color: #556070; border: 1px solid #cdd4de; }
 .mtn { flex: 1; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #2a3545; }
 .mtn.away { text-align: right; }
-.msw { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
+.mnum { color: #c5cfd8; font-size: 0.72em; width: 22px; flex-shrink: 0; text-align: left; }
 .score-input {
   width: 34px; height: 26px; background: #f4f6fa; border: 1px solid #c8d0dc;
   border-radius: 4px; color: #1a2535; text-align: center; font-size: 0.95em; font-weight: 700;
@@ -133,7 +140,6 @@ header p  { color: rgba(255,255,255,0.65); margin-top: 3px; font-size: 0.88em; }
 .score-input::-webkit-inner-spin-button,.score-input::-webkit-outer-spin-button{-webkit-appearance:none}
 .score-input:focus { outline: none; border-color: #1b5e38; background: #eaf3ec; }
 .score-sep { color: #9aa8b5; font-weight: 700; }
-.mnum { color: #c5cfd8; font-size: 0.72em; width: 22px; flex-shrink: 0; text-align: left; }
 
 /* Best 3rd */
 #third-tab { padding: 20px; }
@@ -282,6 +288,7 @@ header p  { color: rgba(255,255,255,0.65); margin-top: 3px; font-size: 0.88em; }
   <span class="toolbar-info">הזינו תוצאות → הטבלאות והפלייאוף מתעדכנים אוטומטית</span>
   <div class="toolbar-btns">
     <span id="sync-badge" class="sync-badge">💾 שמירה מקומית</span>
+    <button class="settings-btn" onclick="fetchLiveResults()" title="עדכן תוצאות אמיתיות">🔄 תוצאות</button>
     <button class="settings-btn" onclick="openSettings()">☁️ סנכרון ענן</button>
     <button class="reset-btn"   onclick="resetAll()">↺ אפס הכל</button>
   </div>
@@ -358,10 +365,70 @@ const GROUPS = [
 const MD=[{md:1,p:[[0,1],[2,3]]},{md:2,p:[[0,2],[1,3]]},{md:3,p:[[0,3],[1,2]]}];
 const PAIRS=[[0,1],[2,3],[0,2],[1,3],[0,3],[1,2]];
 
-let GS={}, KS={};
+let GS={}, KS={}, AR={};
 let DB_URL='', SESSION='';
 let syncTimer=null, lastPush=0;
 let TEAMS_DATA=null;
+
+// ESPN English name → our teams-data.json `name` field
+const ESPN_NAME_MAP={
+  'United States':'USA','Bosnia and Herzegovina':'Bosnia',
+  'Democratic Republic of the Congo':'Congo','DR Congo':'Congo','Congo, DR':'Congo',
+  "Côte d'Ivoire":'Ivory Coast',"Cote d'Ivoire":'Ivory Coast',
+  'Türkiye':'Turkey','Korea Republic':'South Korea','Republic of Korea':'South Korea',
+  'Curaçao':'Curacao','Cabo Verde':'Cape Verde',
+};
+function espnToLocal(n){return ESPN_NAME_MAP[n]||n;}
+function findGroupMatch(nameA,nameB){
+  if(!TEAMS_DATA)return null;
+  const tA=TEAMS_DATA.find(t=>t.name===nameA);
+  const tB=TEAMS_DATA.find(t=>t.name===nameB);
+  if(!tA||!tB)return null;
+  for(const g of GROUPS){
+    const ia=g.teams.findIndex(t=>t.name===tA.nameHe);
+    const ib=g.teams.findIndex(t=>t.name===tB.nameHe);
+    if(ia<0||ib<0)continue;
+    const mi=PAIRS.findIndex(([h,a])=>(h===ia&&a===ib)||(h===ib&&a===ia));
+    if(mi<0)continue;
+    return{gid:g.id,mi,homeIsA:PAIRS[mi][0]===ia};
+  }
+  return null;
+}
+async function fetchLiveResults(){
+  try{
+    const res=await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?limit=200&dates=20260611-20260719');
+    if(!res.ok)return;
+    const data=await res.json();
+    const newAR={};
+    for(const ev of(data.events||[])){
+      const comp=ev.competitions?.[0];
+      if(!comp?.status?.type?.completed)continue;
+      const home=comp.competitors?.find(c=>c.homeAway==='home');
+      const away=comp.competitors?.find(c=>c.homeAway==='away');
+      if(!home||!away)continue;
+      const hName=espnToLocal(home.team.displayName);
+      const aName=espnToLocal(away.team.displayName);
+      const m=findGroupMatch(hName,aName);
+      if(!m)continue;
+      const hs=parseInt(home.score||'0'),as=parseInt(away.score||'0');
+      newAR[m.gid+'_'+m.mi]=m.homeIsA?{h:hs,a:as}:{h:as,a:hs};
+    }
+    AR=newAR;
+    renderAll();
+  }catch(e){}
+}
+function getActualBadge(gid,mi,sc){
+  const ar=AR[gid+'_'+mi];
+  if(!ar)return'';
+  const label=`${ar.h}–${ar.a}`;
+  const entered=sc&&sc.h!==''&&sc.h!==undefined&&sc.a!==''&&sc.a!==undefined;
+  if(!entered)return`<div class="actual-badge neutral">⚽ ${label}</div>`;
+  const uh=+sc.h,ua=+sc.a,ah=ar.h,aa=ar.a;
+  if(uh===ah&&ua===aa)return`<div class="actual-badge exact">🎯 ${label} בול!</div>`;
+  const ud=uh>ua?1:uh<ua?-1:0,ad=ah>aa?1:ah<aa?-1:0;
+  if(ud===ad)return`<div class="actual-badge direction">🟡 ${label} כיוון</div>`;
+  return`<div class="actual-badge wrong">❌ ${label}</div>`;
+}
 
 function genId(){ return Math.random().toString(36).slice(2,8).toUpperCase(); }
 function loadLocal(){
@@ -643,11 +710,14 @@ function groupHTML(group){
         <span class="mnum">${base+mi}</span>
         <span class="mtn" onclick="event.preventDefault();openTeamModal('${ht.name}')" style="cursor:pointer;text-decoration:underline">${ht.f} ${ht.name}</span>
         <div class="msw">
-          <input type="number" min="0" class="score-input" value="${sc.h===undefined?'':sc.h}"
-            oninput="onGS(this)" data-g="${gid}" data-m="${mi}" data-s="h">
-          <span class="score-sep">–</span>
-          <input type="number" min="0" class="score-input" value="${sc.a===undefined?'':sc.a}"
-            oninput="onGS(this)" data-g="${gid}" data-m="${mi}" data-s="a">
+          <div class="msw-scores">
+            <input type="number" min="0" class="score-input" value="${sc.h===undefined?'':sc.h}"
+              oninput="onGS(this)" data-g="${gid}" data-m="${mi}" data-s="h">
+            <span class="score-sep">–</span>
+            <input type="number" min="0" class="score-input" value="${sc.a===undefined?'':sc.a}"
+              oninput="onGS(this)" data-g="${gid}" data-m="${mi}" data-s="a">
+          </div>
+          ${getActualBadge(gid,mi,sc)}
         </div>
         <span class="mtn away" onclick="event.preventDefault();openTeamModal('${at.name}')" style="cursor:pointer;text-decoration:underline">${at.name} ${at.f}</span>
         ${pred?`<div class="match-tooltip">📊 ${pred}</div>`:''}
@@ -924,6 +994,8 @@ async function init(){
   }
   renderAll();
   window.addEventListener('resize',()=>requestAnimationFrame(drawConnectors));
+  fetchLiveResults();
+  setInterval(fetchLiveResults, 60*60*1000);
 }
 init();
 </script>
