@@ -255,6 +255,28 @@ header p  { color: rgba(255,255,255,0.65); margin-top: 3px; font-size: 0.88em; }
 .team-stat-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f2f6; font-size: 0.88em; }
 .team-stat-row:last-child { border-bottom: none; }
 .team-stat-label { color: #8a9ab0; }
+/* New team modal */
+.tmd-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+.tmd-identity { display:flex; align-items:center; gap:10px; }
+.tmd-flag { font-size:2em; line-height:1; }
+.tmd-name { margin:0 0 4px; font-size:1.1em; color:#1a2535; }
+.tmd-rank { font-size:0.75em; color:#8a9ab0; background:#f4f6fa; border:1px solid #dde3ed; border-radius:12px; padding:3px 8px; white-space:nowrap; }
+.tmd-tags { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
+.tmd-tag { font-size:0.72em; padding:2px 8px; border-radius:10px; background:#e8f5ed; color:#1b5e38; border:1px solid #b8dfc8; font-weight:600; }
+.tmd-divider { border:none; border-top:1px solid #eef0f4; margin:10px 0 8px; }
+.tmd-row { display:flex; align-items:flex-start; gap:8px; font-size:0.84em; margin-bottom:8px; }
+.tmd-icon { font-size:1em; flex-shrink:0; margin-top:1px; }
+.tmd-muted { color:#8a9ab0; font-size:0.9em; }
+.tmd-highlight { color:#2a3545; line-height:1.4; }
+.tmd-matchups { display:flex; flex-direction:column; gap:5px; margin:8px 0; font-size:0.82em; }
+.tmd-strength { background:#eaf5ee; border:1px solid #b8dfc8; border-radius:6px; padding:6px 10px; color:#1b5e38; }
+.tmd-weakness { background:#fdf0f0; border:1px solid #f5c0c0; border-radius:6px; padding:6px 10px; color:#8b1a1a; }
+.tmd-section-title { font-weight:700; font-size:0.78em; color:#8a9ab0; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:6px; }
+.tmd-text { font-size:0.84em; color:#5a6a7a; line-height:1.5; margin:0; }
+.tmd-prediction { background:#1a2535; color:#fff; border-radius:8px; padding:10px 12px; font-size:0.84em; margin-top:8px; display:flex; align-items:center; gap:8px; }
+.tmd-pred-stage { font-size:1.1em; font-weight:800; color:#4dd68e; }
+.tmd-pred-note { color:#c0cad8; font-size:0.9em; margin-top:2px; }
+.user-note-box { background:#eaf3ec; border:1px solid #9acaaa; border-radius:6px; padding:8px 10px; margin-top:8px; font-size:0.84em; color:#1b5e38; }
 .team-stat-value { color: #1a2535; font-weight: 600; }
 .rating-bar {
   display: inline-flex; align-items: center; gap: 8px; font-size: 0.82em;
@@ -275,6 +297,8 @@ header p  { color: rgba(255,255,255,0.65); margin-top: 3px; font-size: 0.88em; }
   direction: ltr; text-align: left;
 }
 .match-row:hover .match-tooltip { display: block; }
+.match-locked .score-input { background:#f0f2f6!important; color:#9aa8b5!important; border-color:#dde3ed!important; cursor:not-allowed; }
+.match-meta { font-size:0.67em; color:#b0bcc8; padding:0 0 4px 24px; margin-top:-2px; }
 </style>
 </head>
 <body>
@@ -372,17 +396,17 @@ let TEAMS_DATA=null;
 
 // ESPN English name → our teams-data.json `name` field
 const ESPN_NAME_MAP={
-  'United States':'USA','Bosnia and Herzegovina':'Bosnia',
-  'Democratic Republic of the Congo':'Congo','DR Congo':'Congo','Congo, DR':'Congo',
+  'United States':'USA','Bosnia and Herzegovina':'Bosnia-Herzegovina',
+  'Democratic Republic of the Congo':'DR Congo','Congo DR':'DR Congo',
   "Côte d'Ivoire":'Ivory Coast',"Cote d'Ivoire":'Ivory Coast',
   'Türkiye':'Turkey','Korea Republic':'South Korea','Republic of Korea':'South Korea',
-  'Curaçao':'Curacao','Cabo Verde':'Cape Verde',
+  'Curacao':'Curaçao','Cabo Verde':'Cape Verde',
 };
 function espnToLocal(n){return ESPN_NAME_MAP[n]||n;}
 function findGroupMatch(nameA,nameB){
   if(!TEAMS_DATA)return null;
-  const tA=TEAMS_DATA.find(t=>t.name===nameA);
-  const tB=TEAMS_DATA.find(t=>t.name===nameB);
+  const tA=TEAMS_DATA.find(t=>t.name===nameA||t.name.toLowerCase()===nameA.toLowerCase());
+  const tB=TEAMS_DATA.find(t=>t.name===nameB||t.name.toLowerCase()===nameB.toLowerCase());
   if(!tA||!tB)return null;
   for(const g of GROUPS){
     const ia=g.teams.findIndex(t=>t.name===tA.nameHe);
@@ -394,26 +418,40 @@ function findGroupMatch(nameA,nameB){
   }
   return null;
 }
+let SCHED={};
 async function fetchLiveResults(){
   try{
     const res=await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?limit=200&dates=20260611-20260719');
     if(!res.ok)return;
     const data=await res.json();
-    const newAR={};
+    const newAR={},newSCHED={};
+    const HE_MONTHS=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
     for(const ev of(data.events||[])){
       const comp=ev.competitions?.[0];
-      if(!comp?.status?.type?.completed)continue;
-      const home=comp.competitors?.find(c=>c.homeAway==='home');
-      const away=comp.competitors?.find(c=>c.homeAway==='away');
+      if(!comp)continue;
+      const home=comp.competitors?.find(c=>c.homeAway==='home')||comp.competitors?.[0];
+      const away=comp.competitors?.find(c=>c.homeAway==='away')||comp.competitors?.[1];
       if(!home||!away)continue;
       const hName=espnToLocal(home.team.displayName);
       const aName=espnToLocal(away.team.displayName);
       const m=findGroupMatch(hName,aName);
       if(!m)continue;
+      // schedule
+      if(ev.date){
+        const d=new Date(ev.date);
+        const ilH=(d.getUTCHours()+3)%24;
+        const ilM=String(d.getUTCMinutes()).padStart(2,'0');
+        const day=d.getUTCDate()+(d.getUTCHours()>=21?1:0);
+        const mon=HE_MONTHS[d.getUTCMonth()+(day>28&&d.getUTCDate()<=3?1:0)];
+        const venue=comp.venue?.shortName||comp.venue?.fullName||'';
+        const city=comp.venue?.address?.city||'';
+        newSCHED[m.gid+'_'+m.mi]=`${day} ${HE_MONTHS[new Date(new Date(ev.date).getTime()+3*3600000).getUTCMonth()]} · ${String(ilH).padStart(2,'0')}:${ilM}${venue?' · '+venue+(city?', '+city:''):''}`;
+      }
+      if(!comp?.status?.type?.completed)continue;
       const hs=parseInt(home.score||'0'),as=parseInt(away.score||'0');
       newAR[m.gid+'_'+m.mi]=m.homeIsA?{h:hs,a:as}:{h:as,a:hs};
     }
-    AR=newAR;
+    AR=newAR; SCHED=newSCHED;
     renderAll();
   }catch(e){}
 }
@@ -706,22 +744,24 @@ function groupHTML(group){
       const key=gid+'_'+mi,sc=GS[key]||{h:'',a:''};
       const ht=group.teams[hi],at=group.teams[ai];
       const pred=getPrediction(ht,at);
-      mhtml+=`<div class="match-row">
+      const locked=!!AR[gid+'_'+mi];
+      const sched=SCHED[gid+'_'+mi]?`<div class="match-meta">📅 ${SCHED[gid+'_'+mi]}</div>`:'';
+      mhtml+=`<div class="match-row${locked?' match-locked':''}">
         <span class="mnum">${base+mi}</span>
         <span class="mtn" onclick="event.preventDefault();openTeamModal('${ht.name}')" style="cursor:pointer;text-decoration:underline">${ht.f} ${ht.name}</span>
         <div class="msw">
           <div class="msw-scores">
             <input type="number" min="0" class="score-input" value="${sc.h===undefined?'':sc.h}"
-              oninput="onGS(this)" data-g="${gid}" data-m="${mi}" data-s="h">
+              oninput="onGS(this)" data-g="${gid}" data-m="${mi}" data-s="h"${locked?' disabled':''}>
             <span class="score-sep">–</span>
             <input type="number" min="0" class="score-input" value="${sc.a===undefined?'':sc.a}"
-              oninput="onGS(this)" data-g="${gid}" data-m="${mi}" data-s="a">
+              oninput="onGS(this)" data-g="${gid}" data-m="${mi}" data-s="a"${locked?' disabled':''}>
           </div>
           ${getActualBadge(gid,mi,sc)}
         </div>
         <span class="mtn away" onclick="event.preventDefault();openTeamModal('${at.name}')" style="cursor:pointer;text-decoration:underline">${at.name} ${at.f}</span>
-        ${pred?`<div class="match-tooltip">📊 ${pred}</div>`:''}
-      </div>`;
+        ${pred&&!locked?`<div class="match-tooltip">📊 ${pred}</div>`:''}
+      </div>${sched}`;
       mi++;
     });
   });
@@ -930,37 +970,42 @@ function openTeamModal(teamName){
   const t=findTeam(teamName);
   if(!t)return;
   const flag=teamFlag(teamName);
-  const off=t.offense.rating, def=t.defense.rating;
   const userNote=t.user_note||'';
-  const html=`<h3>${flag} ${t.nameHe}</h3>
-  <div class="team-stat-row"><span class="team-stat-label">דירוג FIFA</span><span class="team-stat-value">#${t.fifa_ranking}</span></div>
-  <div class="team-stat-row"><span class="team-stat-label">מאמן</span><span class="team-stat-value">${t.coach}</span></div>
-  ${userNote?`<h4>📝 הערות אישיות</h4><div class="fact-box" style="background:#eaf3ec;border-color:#9acaaa;color:#1b5e38">${userNote}</div>`:''}
-  <h4>העפלה</h4>
-  <p style="font-size:0.85em;margin-bottom:10px">${t.qualification}</p>
-  <h4>סגנון משחק</h4>
-  <p style="font-size:0.85em;margin-bottom:10px">${t.style}</p>
-  ${t.qualifying_results_he?`<h4>📊 איך הם הגיעו לכאן (מוקדמות)</h4>
-  <p style="font-size:0.85em;margin-bottom:10px">${t.qualifying_results_he}</p>`:''}
-  ${t.style_matchups_he?`<h4>⚔️ מול איזה סגנון הם מתקשים</h4>
-  <p style="font-size:0.85em;margin-bottom:10px">${t.style_matchups_he}</p>`:''}
-  <h4>עוצמה התקפה / הגנה</h4>
-  <div style="font-size:0.85em;margin-bottom:10px">
-    <div>התקפה: <span style="float:left">${off}/10</span><div class="rating-fill"><div class="rating-fill-colored" style="width:${off*10}%"></div></div></div>
-    <p style="font-size:0.82em;color:#8a9ab0;margin-top:4px;margin-bottom:0">${t.offense.explanation}</p>
-    <div style="margin-top:12px">הגנה: <span style="float:left">${def}/10</span><div class="rating-fill"><div class="rating-fill-colored" style="width:${def*10}%"></div></div></div>
-    <p style="font-size:0.82em;color:#8a9ab0;margin-top:4px;margin-bottom:0">${t.defense.explanation}</p>
+  const tags=(t.style_tags||[]).map(tag=>`<span class="tmd-tag">${tag}</span>`).join('');
+  const history=t.tournament_history_he||t.world_cup_history||'';
+  const html=`
+  <div class="tmd-header">
+    <div class="tmd-identity">
+      <div class="tmd-flag">${flag}</div>
+      <div>
+        <div class="tmd-name"><b>${t.nameHe}</b></div>
+        <div class="tmd-tags">${tags}</div>
+      </div>
+    </div>
+    <div class="tmd-rank">פיפ"א #${t.fifa_ranking}</div>
   </div>
-  <h4>שחקנים מרכזיים</h4>
+  <hr class="tmd-divider">
+  <div class="tmd-row"><span class="tmd-icon">👨‍💼</span><div><b>${t.coach}</b>${t.coach_notes?` <span class="tmd-muted">· ${t.coach_notes}</span>`:''}</div></div>
+  ${t.qualifying_highlight?`<div class="tmd-row"><span class="tmd-icon">📊</span><div class="tmd-highlight">${t.qualifying_highlight}</div></div>`:''}
+  ${(t.strength_vs||t.weakness_vs)?`<div class="tmd-matchups">
+    ${t.strength_vs?`<div class="tmd-strength">✅ <b>מצטיינת מול:</b> ${t.strength_vs}</div>`:''}
+    ${t.weakness_vs?`<div class="tmd-weakness">⚠️ <b>מתקשה מול:</b> ${t.weakness_vs}</div>`:''}
+  </div>`:''}
+  <hr class="tmd-divider">
+  <div class="tmd-section-title">👥 שחקנים מרכזיים</div>
   <div class="player-list">${t.key_players.map(p=>`<div class="player-item">⚽ <b>${p.name}</b> <span class="player-pos">${p.position} · ${p.club}</span></div>`).join('')}</div>
-  <h4>פורמה נוכחית</h4>
-  <p style="font-size:0.85em">${t.form}</p>
-  <h4>היסטוריית גביע העולם</h4>
-  <p style="font-size:0.85em">${t.world_cup_history}</p>
-  <h4>📖 עובדה מעניינת</h4>
-  <div class="fact-box">${t.interesting_fact}</div>
-  <h4>תחזית</h4>
-  <p style="font-size:0.85em">${t.prediction_notes}</p>`;
+  <hr class="tmd-divider">
+  <div class="tmd-section-title">🏆 היסטוריה</div>
+  <p class="tmd-text">${history}</p>
+  <div class="fact-box" style="margin-top:8px">💡 ${t.interesting_fact}</div>
+  ${(t.prediction_stage||t.prediction_notes)?`<div class="tmd-prediction">
+    <span style="font-size:1.3em">🎯</span>
+    <div>
+      ${t.prediction_stage?`<div class="tmd-pred-stage">${t.prediction_stage}</div>`:''}
+      <div class="tmd-pred-note">${t.prediction_notes||''}</div>
+    </div>
+  </div>`:''}
+  ${userNote?`<div class="user-note-box">📝 ${userNote}</div>`:''}`;
   document.getElementById('team-detail').innerHTML=html;
   document.getElementById('team-overlay').classList.add('open');
 }
