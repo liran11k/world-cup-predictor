@@ -382,13 +382,14 @@ function resetAll(){
 async function pushCloud(){
   if(!DB_URL||!SESSION)return;
   try{
-    await fetch(`${DB_URL}/wc26/${SESSION}.json`,{
+    const res=await fetch(`${DB_URL}/wc26/${SESSION}.json`,{
       method:'PUT', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({GS,KS,ts:Date.now()})
     });
+    if(!res.ok){setSyncBadge(false,`⚠️ שגיאה ${res.status} — בדוק הרשאות Firebase`);return;}
     lastPush=Date.now();
-    setSyncBadge(true,'☁️ מסונכרן');
-  }catch(e){setSyncBadge(false,'⚠️ שגיאת סנכרון');}
+    setSyncBadge(true,'☁️ מסונכרן · '+SESSION);
+  }catch(e){setSyncBadge(false,'⚠️ שגיאת רשת');}
 }
 async function pullCloud(){
   if(!DB_URL||!SESSION)return false;
@@ -916,8 +917,9 @@ async function init(){
   await loadTeamsData();
   if(DB_URL){
     setSyncBadge(false,'☁️ טוען…');
-    await pullCloud();
-    setSyncBadge(true,'☁️ מסונכרן');
+    const ok=await pullCloud();
+    if(ok) setSyncBadge(true,'☁️ מסונכרן · '+SESSION);
+    else setSyncBadge(false,'⚠️ לא ניתן לטעון מהענן — בדוק הרשאות Firebase');
     startPolling();
   }
   renderAll();
