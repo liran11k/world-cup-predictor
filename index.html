@@ -248,35 +248,49 @@ header p  { color: rgba(255,255,255,0.65); margin-top: 3px; font-size: 0.88em; }
 .team-btn-flag { font-size: 1.8em; display: block; margin-bottom: 4px; }
 
 /* Team Modal */
-.team-modal { max-width: 680px; max-height: 85vh; overflow-y: auto; }
+.team-modal { max-width: 680px; max-height: 90vh; overflow-y: auto; padding: 0 !important; background: #f4f7fb; }
+.team-modal .modal-close { color: rgba(255,255,255,.7); top: 10px; left: 12px; z-index:2; }
 .team-detail { color: #4a5a6a; }
-.team-detail h3 { color: #1b5e38; font-size: 1.3em; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-.team-detail h4 { color: #5a6a7a; font-size: 1em; margin-top: 14px; margin-bottom: 6px; font-weight: 700; }
-.team-stat-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f2f6; font-size: 0.88em; }
-.team-stat-row:last-child { border-bottom: none; }
-.team-stat-label { color: #8a9ab0; }
-/* New team modal */
-.tmd-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
-.tmd-identity { display:flex; align-items:center; gap:10px; }
-.tmd-flag { font-size:2em; line-height:1; }
-.tmd-name { margin:0 0 4px; font-size:1.1em; color:#1a2535; }
-.tmd-rank { font-size:0.75em; color:#8a9ab0; background:#f4f6fa; border:1px solid #dde3ed; border-radius:12px; padding:3px 8px; white-space:nowrap; }
-.tmd-tags { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
-.tmd-tag { font-size:0.72em; padding:2px 8px; border-radius:10px; background:#e8f5ed; color:#1b5e38; border:1px solid #b8dfc8; font-weight:600; }
-.tmd-divider { border:none; border-top:1px solid #eef0f4; margin:10px 0 8px; }
-.tmd-row { display:flex; align-items:flex-start; gap:8px; font-size:0.84em; margin-bottom:8px; }
-.tmd-icon { font-size:1em; flex-shrink:0; margin-top:1px; }
-.tmd-muted { color:#8a9ab0; font-size:0.9em; }
-.tmd-highlight { color:#2a3545; line-height:1.4; }
-.tmd-matchups { display:flex; flex-direction:column; gap:5px; margin:8px 0; font-size:0.82em; }
-.tmd-strength { background:#eaf5ee; border:1px solid #b8dfc8; border-radius:6px; padding:6px 10px; color:#1b5e38; }
-.tmd-weakness { background:#fdf0f0; border:1px solid #f5c0c0; border-radius:6px; padding:6px 10px; color:#8b1a1a; }
-.tmd-section-title { font-weight:700; font-size:0.78em; color:#8a9ab0; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:6px; }
-.tmd-text { font-size:0.84em; color:#5a6a7a; line-height:1.5; margin:0; }
-.tmd-prediction { background:#1a2535; color:#fff; border-radius:8px; padding:10px 12px; font-size:0.84em; margin-top:8px; display:flex; align-items:center; gap:8px; }
-.tmd-pred-stage { font-size:1.1em; font-weight:800; color:#4dd68e; }
-.tmd-pred-note { color:#c0cad8; font-size:0.9em; margin-top:2px; }
-.user-note-box { background:#eaf3ec; border:1px solid #9acaaa; border-radius:6px; padding:8px 10px; margin-top:8px; font-size:0.84em; color:#1b5e38; }
+/* Bubble Chart Modal */
+.bmc-hero { display:flex; align-items:center; gap:14px; padding:18px 20px 14px; background:linear-gradient(135deg,#1a2535 0%,#1b5e38 100%); border-radius:12px 12px 0 0; }
+.bmc-flag { font-size:3em; line-height:1; filter:drop-shadow(0 2px 4px rgba(0,0,0,.3)); }
+.bmc-hero-info { flex:1; }
+.bmc-hero-name { font-size:1.4em; font-weight:800; color:#fff; margin-bottom:4px; }
+.bmc-hero-rank { font-size:0.78em; color:#8ecfa8; background:rgba(255,255,255,.1); border-radius:20px; padding:2px 10px; display:inline-block; }
+.bmc-tags { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+.bmc-tag { font-size:0.7em; padding:3px 9px; border-radius:12px; background:rgba(255,255,255,.15); color:#c8ecd8; border:1px solid rgba(255,255,255,.2); font-weight:600; }
+.bmc-body { padding:14px 16px 16px; }
+.bmc-bubbles { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:10px; }
+.bmc-bubble { border-radius:16px; padding:10px 12px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; min-height:72px; }
+.bmc-bubble-label { font-size:0.64em; text-transform:uppercase; letter-spacing:.5px; font-weight:700; opacity:.6; margin-bottom:3px; }
+.bmc-bubble-value { font-size:1.15em; font-weight:800; line-height:1.2; }
+.bmc-bubble-sub { font-size:0.65em; opacity:.7; margin-top:2px; }
+.bmc-b-rank { background:#e8f0ff; color:#2a4a9a; border:2px solid #c0d0f5; }
+.bmc-b-off { background:#fff3e8; color:#a04010; border:2px solid #f5d0b0; }
+.bmc-b-def { background:#e8f5ed; color:#1b5e38; border:2px solid #b0dfc0; }
+.bmc-b-pred { background:linear-gradient(135deg,#1a2535,#1b5e38); color:#4dd68e; border:2px solid #2a7a50; grid-column:span 3; flex-direction:row; gap:10px; padding:12px 16px; min-height:auto; }
+.bmc-b-pred .bmc-bubble-label { color:rgba(255,255,255,.6); opacity:1; }
+.bmc-b-pred .bmc-bubble-value { font-size:1.2em; color:#4dd68e; }
+.bmc-b-pred .bmc-bubble-sub { color:rgba(200,220,210,.8); opacity:1; font-size:0.78em; text-align:right; }
+.bmc-wide { display:flex; gap:10px; margin-bottom:10px; }
+.bmc-pill { flex:1; border-radius:14px; padding:10px 14px; font-size:0.83em; line-height:1.4; }
+.bmc-pill-coach { background:#f0f4ff; border:1.5px solid #c8d8f8; color:#2a3a6a; }
+.bmc-pill-qual { background:#f8f4e8; border:1.5px solid #e8d890; color:#5a4010; }
+.bmc-pill-label { font-size:0.68em; text-transform:uppercase; letter-spacing:.5px; font-weight:700; opacity:.55; margin-bottom:3px; }
+.bmc-matchups { display:flex; gap:10px; margin-bottom:10px; }
+.bmc-match-box { flex:1; border-radius:14px; padding:10px 12px; font-size:0.8em; line-height:1.4; }
+.bmc-match-str { background:#eaf5ee; border:1.5px solid #a8d8b8; color:#1b5e38; }
+.bmc-match-wk { background:#fdf0f0; border:1.5px solid #f0b8b8; color:#8b1a1a; }
+.bmc-match-label { font-size:0.68em; text-transform:uppercase; letter-spacing:.5px; font-weight:700; opacity:.5; margin-bottom:3px; }
+.bmc-players { background:#fff; border-radius:14px; border:1.5px solid #e0e8f0; padding:10px 14px; margin-bottom:10px; }
+.bmc-players-title { font-size:0.7em; text-transform:uppercase; letter-spacing:.5px; font-weight:700; color:#8a9ab0; margin-bottom:8px; }
+.bmc-players-grid { display:flex; flex-wrap:wrap; gap:6px; }
+.bmc-player { background:#f0f4f8; border-radius:10px; padding:5px 10px; font-size:0.76em; color:#2a3a50; }
+.bmc-player b { color:#1a2535; }
+.bmc-history { background:#fff; border-radius:14px; border:1.5px solid #e0e8f0; padding:10px 14px; margin-bottom:10px; font-size:0.8em; color:#5a6a7a; line-height:1.5; }
+.bmc-history-title { font-size:0.7em; text-transform:uppercase; letter-spacing:.5px; font-weight:700; color:#8a9ab0; margin-bottom:5px; }
+.bmc-fact { background:#fffbe8; border:1.5px solid #e8d890; border-radius:12px; padding:8px 12px; font-size:0.79em; color:#5a4010; margin-bottom:10px; }
+.bmc-user-note { background:#eaf3ec; border:1.5px solid #9acaaa; border-radius:12px; padding:8px 12px; font-size:0.82em; color:#1b5e38; }
 .team-stat-value { color: #1a2535; font-weight: 600; }
 .rating-bar {
   display: inline-flex; align-items: center; gap: 8px; font-size: 0.82em;
@@ -971,41 +985,64 @@ function openTeamModal(teamName){
   if(!t)return;
   const flag=teamFlag(teamName);
   const userNote=t.user_note||'';
-  const tags=(t.style_tags||[]).map(tag=>`<span class="tmd-tag">${tag}</span>`).join('');
+  const tags=(t.style_tags||[]).map(tag=>`<span class="bmc-tag">${tag}</span>`).join('');
   const history=t.tournament_history_he||t.world_cup_history||'';
   const html=`
-  <div class="tmd-header">
-    <div class="tmd-identity">
-      <div class="tmd-flag">${flag}</div>
-      <div>
-        <div class="tmd-name"><b>${t.nameHe}</b></div>
-        <div class="tmd-tags">${tags}</div>
-      </div>
+  <div class="bmc-hero">
+    <div class="bmc-flag">${flag}</div>
+    <div class="bmc-hero-info">
+      <div class="bmc-hero-name">${t.nameHe}</div>
+      <span class="bmc-hero-rank">דירוג פיפ"א #${t.fifa_ranking}</span>
+      ${tags?`<div class="bmc-tags">${tags}</div>`:''}
     </div>
-    <div class="tmd-rank">פיפ"א #${t.fifa_ranking}</div>
   </div>
-  <hr class="tmd-divider">
-  <div class="tmd-row"><span class="tmd-icon">👨‍💼</span><div><b>${t.coach}</b>${t.coach_notes?` <span class="tmd-muted">· ${t.coach_notes}</span>`:''}</div></div>
-  ${t.qualifying_highlight?`<div class="tmd-row"><span class="tmd-icon">📊</span><div class="tmd-highlight">${t.qualifying_highlight}</div></div>`:''}
-  ${(t.strength_vs||t.weakness_vs)?`<div class="tmd-matchups">
-    ${t.strength_vs?`<div class="tmd-strength">✅ <b>מצטיינת מול:</b> ${t.strength_vs}</div>`:''}
-    ${t.weakness_vs?`<div class="tmd-weakness">⚠️ <b>מתקשה מול:</b> ${t.weakness_vs}</div>`:''}
-  </div>`:''}
-  <hr class="tmd-divider">
-  <div class="tmd-section-title">👥 שחקנים מרכזיים</div>
-  <div class="player-list">${t.key_players.map(p=>`<div class="player-item">⚽ <b>${p.name}</b> <span class="player-pos">${p.position} · ${p.club}</span></div>`).join('')}</div>
-  <hr class="tmd-divider">
-  <div class="tmd-section-title">🏆 היסטוריה</div>
-  <p class="tmd-text">${history}</p>
-  <div class="fact-box" style="margin-top:8px">💡 ${t.interesting_fact}</div>
-  ${(t.prediction_stage||t.prediction_notes)?`<div class="tmd-prediction">
-    <span style="font-size:1.3em">🎯</span>
-    <div>
-      ${t.prediction_stage?`<div class="tmd-pred-stage">${t.prediction_stage}</div>`:''}
-      <div class="tmd-pred-note">${t.prediction_notes||''}</div>
+  <div class="bmc-body">
+    <div class="bmc-bubbles">
+      <div class="bmc-bubble bmc-b-rank">
+        <div class="bmc-bubble-label">התקפה</div>
+        <div class="bmc-bubble-value">${t.offense}/10</div>
+        <div class="bmc-bubble-sub">כוח מתקפי</div>
+      </div>
+      <div class="bmc-bubble bmc-b-off">
+        <div class="bmc-bubble-label">הגנה</div>
+        <div class="bmc-bubble-value">${t.defense}/10</div>
+        <div class="bmc-bubble-sub">איכות הגנתית</div>
+      </div>
+      <div class="bmc-bubble bmc-b-def">
+        <div class="bmc-bubble-label">נקודות</div>
+        <div class="bmc-bubble-value">${t.avg_goals_scored}</div>
+        <div class="bmc-bubble-sub">שערים ממוצע</div>
+      </div>
+      ${(t.prediction_stage||t.prediction_notes)?`<div class="bmc-bubble bmc-b-pred">
+        <div style="font-size:1.8em;flex-shrink:0">🎯</div>
+        <div>
+          ${t.prediction_stage?`<div class="bmc-bubble-label">תחזית</div><div class="bmc-bubble-value">${t.prediction_stage}</div>`:''}
+          ${t.prediction_notes?`<div class="bmc-bubble-sub">${t.prediction_notes}</div>`:''}
+        </div>
+      </div>`:''}
     </div>
-  </div>`:''}
-  ${userNote?`<div class="user-note-box">📝 ${userNote}</div>`:''}`;
+    <div class="bmc-wide">
+      <div class="bmc-pill bmc-pill-coach">
+        <div class="bmc-pill-label">👨‍💼 מאמן</div>
+        <b>${t.coach}</b>${t.coach_notes?` · <span style="opacity:.7">${t.coach_notes}</span>`:''}
+      </div>
+      ${t.qualifying_highlight?`<div class="bmc-pill bmc-pill-qual">
+        <div class="bmc-pill-label">📊 מוקדמות</div>
+        ${t.qualifying_highlight}
+      </div>`:''}
+    </div>
+    ${(t.strength_vs||t.weakness_vs)?`<div class="bmc-matchups">
+      ${t.strength_vs?`<div class="bmc-match-box bmc-match-str"><div class="bmc-match-label">✅ מצטיינת מול</div>${t.strength_vs}</div>`:''}
+      ${t.weakness_vs?`<div class="bmc-match-box bmc-match-wk"><div class="bmc-match-label">⚠️ מתקשה מול</div>${t.weakness_vs}</div>`:''}
+    </div>`:''}
+    <div class="bmc-players">
+      <div class="bmc-players-title">👥 שחקנים מרכזיים</div>
+      <div class="bmc-players-grid">${t.key_players.map(p=>`<div class="bmc-player"><b>${p.name}</b> <span style="opacity:.6">${p.position}</span></div>`).join('')}</div>
+    </div>
+    ${history?`<div class="bmc-history"><div class="bmc-history-title">🏆 היסטוריה</div>${history}</div>`:''}
+    <div class="bmc-fact">💡 ${t.interesting_fact}</div>
+    ${userNote?`<div class="bmc-user-note">📝 ${userNote}</div>`:''}
+  </div>`;
   document.getElementById('team-detail').innerHTML=html;
   document.getElementById('team-overlay').classList.add('open');
 }
