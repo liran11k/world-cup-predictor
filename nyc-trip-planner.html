@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🗽 הטיול לניו יורק – יוני-יולי 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f0f4f8;
+    --card: #ffffff;
+    --primary: #2563eb;
+    --primary-light: #dbeafe;
+    --solo: #7c3aed;
+    --solo-light: #ede9fe;
+    --green: #059669;
+    --green-light: #d1fae5;
+    --orange: #d97706;
+    --orange-light: #fef3c7;
+    --red: #dc2626;
+    --gray: #64748b;
+    --gray-light: #f1f5f9;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: 'Segoe UI', 'Arial Hebrew', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    direction: rtl;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #0ea5e9 100%);
+    color: white;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.3px; }
+  .header-sub { font-size: 0.8rem; opacity: 0.85; margin-top: 2px; }
+  .header-actions { display: flex; gap: 8px; }
+  .btn {
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .btn-white { background: white; color: var(--primary); }
+  .btn-white:hover { background: #e0eaff; }
+  .btn-glass { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); }
+  .btn-glass:hover { background: rgba(255,255,255,0.25); }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-danger { background: #fee2e2; color: var(--red); }
+  .btn-danger:hover { background: #fecaca; }
+  .btn-sm { padding: 4px 10px; font-size: 0.75rem; }
+
+  /* Main layout */
+  .main { display: flex; height: calc(100vh - 62px); }
+
+  /* Sidebar */
+  .sidebar {
+    width: 280px;
+    min-width: 280px;
+    background: var(--card);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--gray-light);
+  }
+  .sidebar-title { font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+  .search-box {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    outline: none;
+    direction: rtl;
+    margin-bottom: 8px;
+  }
+  .search-box:focus { border-color: var(--primary); }
+  .filter-tabs { display: flex; gap: 4px; }
+  .filter-tab {
+    flex: 1;
+    padding: 5px 4px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.15s;
+    color: var(--text-muted);
+  }
+  .filter-tab.active-all { background: var(--text); color: white; border-color: var(--text); }
+  .filter-tab.active-group { background: var(--primary); color: white; border-color: var(--primary); }
+  .filter-tab.active-solo { background: var(--solo); color: white; border-color: var(--solo); }
+
+  .sidebar-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+
+  .attraction-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .attraction-card:hover { border-color: var(--primary); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .attraction-card.type-group { border-right: 3px solid var(--primary); }
+  .attraction-card.type-solo { border-right: 3px solid var(--solo); }
+  .attraction-card.type-both { border-right: 3px solid var(--green); }
+  .attraction-card .card-name { font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; }
+  .attraction-card .card-meta { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 600;
+  }
+  .badge-free { background: var(--green-light); color: var(--green); }
+  .badge-paid { background: var(--orange-light); color: var(--orange); }
+  .badge-book { background: #fee2e2; color: var(--red); }
+  .badge-group { background: var(--primary-light); color: var(--primary); }
+  .badge-solo { background: var(--solo-light); color: var(--solo); }
+  .badge-duration { background: var(--gray-light); color: var(--gray); }
+  .maps-link { font-size: 0.72rem; color: var(--primary); text-decoration: none; margin-top: 4px; display: inline-block; }
+  .maps-link:hover { text-decoration: underline; }
+
+  /* Calendar area */
+  .calendar-area { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+  .calendar-scroll { flex: 1; overflow-x: auto; overflow-y: auto; padding: 16px; }
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: 90px repeat(14, minmax(150px, 1fr));
+    gap: 0;
+    min-width: 1200px;
+  }
+
+  /* Time column header */
+  .col-header {
+    padding: 10px 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .col-header.day-header {
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .col-header.day-header:hover { background: var(--primary-light); }
+  .col-header .day-name { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; }
+  .col-header .day-num { font-size: 1.1rem; font-weight: 800; color: var(--text); }
+  .col-header .day-month { font-size: 0.65rem; color: var(--text-muted); }
+  .col-header.solo-day .day-num { color: var(--solo); }
+  .col-header.today-day { background: var(--primary-light); border-color: var(--primary); }
+  .col-header.today-day .day-num { color: var(--primary); }
+
+  .time-label {
+    padding: 8px 6px;
+    background: var(--gray-light);
+    border: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slot {
+    border: 1px solid var(--border);
+    min-height: 90px;
+    padding: 6px;
+    background: white;
+    transition: background 0.1s;
+    vertical-align: top;
+    position: relative;
+  }
+  .slot:hover { background: #f8faff; }
+  .slot.solo-col { background: #faf8ff; }
+  .slot.solo-col:hover { background: #f3eeff; }
+  .slot.drag-over { background: var(--primary-light); outline: 2px dashed var(--primary); }
+
+  .add-btn {
+    width: 100%;
+    height: 100%;
+    min-height: 70px;
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .add-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+  .placed-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 9px;
+    font-size: 0.77rem;
+    position: relative;
+    margin-bottom: 4px;
+    cursor: grab;
+  }
+  .placed-card:active { cursor: grabbing; }
+  .placed-card.type-group { border-right: 3px solid var(--primary); background: #f8fbff; }
+  .placed-card.type-solo { border-right: 3px solid var(--solo); background: #faf8ff; }
+  .placed-card.type-both { border-right: 3px solid var(--green); background: #f0fdf9; }
+  .placed-card.locked { cursor: default; opacity: 0.9; }
+  .placed-card .pcard-name { font-weight: 700; font-size: 0.8rem; line-height: 1.2; }
+  .placed-card .pcard-time { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; }
+  .placed-card .pcard-actions { display: flex; gap: 3px; margin-top: 5px; }
+  .pcard-btn {
+    padding: 2px 7px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.65rem;
+    font-weight: 600;
+  }
+  .pcard-edit { background: #e0f2fe; color: #0369a1; }
+  .pcard-edit:hover { background: #bae6fd; }
+  .pcard-remove { background: #fee2e2; color: var(--red); }
+  .pcard-remove:hover { background: #fecaca; }
+  .locked-badge { background: #fef9c3; color: #854d0e; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; }
+
+  /* Day view modal */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .overlay.open { display: flex; }
+  .day-modal {
+    background: var(--card);
+    border-radius: 16px;
+    width: 96vw;
+    max-width: 680px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+  }
+  .day-modal-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--card);
+    border-radius: 16px 16px 0 0;
+    z-index: 5;
+  }
+  .day-modal-title { font-size: 1.1rem; font-weight: 800; }
+  .day-modal-subtitle { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+  .close-btn { background: var(--gray-light); border: none; border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 1rem; }
+  .close-btn:hover { background: var(--border); }
+  .day-modal-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; }
+
+  .time-section { }
+  .time-section-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-slot { display: flex; flex-direction: column; gap: 6px; min-height: 50px; }
+
+  .modal-placed-card {
+    background: var(--gray-light);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .modal-placed-card.type-group { border-right: 4px solid var(--primary); background: var(--primary-light); }
+  .modal-placed-card.type-solo { border-right: 4px solid var(--solo); background: var(--solo-light); }
+  .modal-placed-card.type-both { border-right: 4px solid var(--green); background: var(--green-light); }
+  .modal-placed-card.locked { border-right: 4px solid var(--orange); background: var(--orange-light); }
+  .mpc-info .mpc-name { font-weight: 700; font-size: 0.9rem; }
+  .mpc-info .mpc-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 3px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .mpc-info .mpc-note { font-size: 0.75rem; color: var(--gray); margin-top: 4px; font-style: italic; }
+  .mpc-actions { display: flex; gap: 4px; flex-shrink: 0; }
+  .modal-add-btn {
+    border: 1.5px dashed var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    transition: all 0.15s;
+    background: transparent;
+    width: 100%;
+  }
+  .modal-add-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+  /* Edit modal */
+  .edit-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+  }
+  .edit-overlay.open { display: flex; }
+  .edit-modal {
+    background: var(--card);
+    border-radius: 14px;
+    width: 95vw;
+    max-width: 460px;
+    padding: 22px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  }
+  .edit-modal h3 { font-size: 1rem; font-weight: 800; margin-bottom: 16px; }
+  .form-group { margin-bottom: 12px; }
+  .form-label { font-size: 0.8rem; font-weight: 600; margin-bottom: 4px; display: block; color: var(--text-muted); }
+  .form-input, .form-textarea, .form-select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    direction: rtl;
+    outline: none;
+    font-family: inherit;
+  }
+  .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--primary); }
+  .form-textarea { resize: vertical; min-height: 70px; }
+  .form-actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+
+  /* Pick attraction modal */
+  .pick-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+  }
+  .pick-overlay.open { display: flex; }
+  .pick-modal {
+    background: var(--card);
+    border-radius: 14px;
+    width: 95vw;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  }
+  .pick-modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .pick-modal-header h3 { font-size: 1rem; font-weight: 800; }
+  .pick-search { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .pick-search input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    direction: rtl;
+    outline: none;
+  }
+  .pick-search input:focus { border-color: var(--primary); }
+  .pick-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .pick-item {
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .pick-item:hover { border-color: var(--primary); background: var(--primary-light); }
+  .pick-item .pi-name { font-weight: 700; font-size: 0.88rem; }
+  .pick-item .pi-meta { font-size: 0.72rem; color: var(--text-muted); margin-top: 3px; display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #1e293b;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    z-index: 999;
+    transition: transform 0.3s;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+  @media (max-width: 700px) {
+    .sidebar { display: none; }
+    .calendar-scroll { padding: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-sub">🗽 ניו יורק</div>
+    <h1>הטיול הגדול — 21 יוני עד 4 יולי 2026</h1>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-glass" onclick="shareTrip()">🔗 שתף</button>
+    <button class="btn btn-glass" onclick="window.print()">🖨 הדפס</button>
+  </div>
+</div>
+
+<div class="main">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">📍 אטרקציות</div>
+      <input class="search-box" type="text" placeholder="🔍 חפש אטרקציה..." id="sidebarSearch" oninput="renderSidebar()">
+      <div class="filter-tabs">
+        <div class="filter-tab active-all" id="filter-all" onclick="setFilter('all')">הכל</div>
+        <div class="filter-tab" id="filter-group" onclick="setFilter('group')">👥 קבוצה</div>
+        <div class="filter-tab" id="filter-solo" onclick="setFilter('solo')">🎧 לבד</div>
+      </div>
+    </div>
+    <div class="sidebar-list" id="sidebarList"></div>
+  </div>
+
+  <!-- Calendar -->
+  <div class="calendar-area">
+    <div class="calendar-scroll">
+      <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Day view modal -->
+<div class="overlay" id="dayOverlay" onclick="closeDayOverlayIfBg(event)">
+  <div class="day-modal" id="dayModal">
+    <div class="day-modal-header">
+      <div>
+        <div class="day-modal-title" id="dayModalTitle"></div>
+        <div class="day-modal-subtitle" id="dayModalSubtitle"></div>
+      </div>
+      <button class="close-btn" onclick="closeDayModal()">✕</button>
+    </div>
+    <div class="day-modal-body" id="dayModalBody"></div>
+  </div>
+</div>
+
+<!-- Pick attraction modal -->
+<div class="pick-overlay" id="pickOverlay" onclick="closePickOverlayIfBg(event)">
+  <div class="pick-modal">
+    <div class="pick-modal-header">
+      <h3>בחר אטרקציה</h3>
+      <button class="close-btn" onclick="closePickModal()">✕</button>
+    </div>
+    <div class="pick-search">
+      <input type="text" placeholder="🔍 חפש..." id="pickSearch" oninput="renderPickList()">
+    </div>
+    <div class="pick-list" id="pickList"></div>
+  </div>
+</div>
+
+<!-- Edit modal -->
+<div class="edit-overlay" id="editOverlay" onclick="closeEditOverlayIfBg(event)">
+  <div class="edit-modal">
+    <h3 id="editModalTitle">ערוך פעילות</h3>
+    <div class="form-group">
+      <label class="form-label">שעת התחלה</label>
+      <input class="form-input" type="time" id="editTime">
+    </div>
+    <div class="form-group">
+      <label class="form-label">הערות</label>
+      <textarea class="form-textarea" id="editNote" placeholder="הוסף הערות..."></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-danger btn-sm" onclick="removeEditEntry()">🗑 הסר</button>
+      <button class="btn btn-white btn-sm" onclick="closeEditModal()">ביטול</button>
+      <button class="btn btn-primary btn-sm" onclick="saveEdit()">שמור</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────
+const DAYS = [];
+const START = new Date(2026, 5, 21); // June 21
+for (let i = 0; i < 14; i++) {
+  const d = new Date(START);
+  d.setDate(START.getDate() + i);
+  DAYS.push(d);
+}
+
+const HE_DAYS = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+const HE_MONTHS = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+const SLOTS = [
+  { key: 'morning', label: '🌅 בוקר', time: '9:00–12:00' },
+  { key: 'afternoon', label: '☀️ צהריים', time: '12:00–17:00' },
+  { key: 'evening', label: '🌆 ערב', time: '17:00–21:00' },
+  { key: 'night', label: '🌙 לילה', time: '21:00+' },
+];
+
+const ATTRACTIONS = [
+  {
+    id: 'ferry',
+    name: 'מעבורת סטטן איילנד',
+    nameEn: 'Staten Island Ferry',
+    emoji: '⛴',
+    type: 'both',
+    price: 'חינם',
+    priceFree: true,
+    duration: '1.5 שעות',
+    book: false,
+    note: 'נוף מדהים לפסל החירות ולמנהטן ממרחק. יוצאת מ-Whitehall Terminal.',
+    maps: 'Staten Island Ferry Whitehall Terminal New York',
+  },
+  {
+    id: 'brooklyn-bridge',
+    name: 'גשר ברוקלין – הליכה',
+    nameEn: 'Brooklyn Bridge Walk',
+    emoji: '🌉',
+    type: 'both',
+    price: 'חינם',
+    priceFree: true,
+    duration: '1–2 שעות',
+    book: false,
+    note: 'הליכה מהצד של מנהטן לברוקלין. נוף מטורף. מסתיים ב-DUMBO.',
+    maps: 'Brooklyn Bridge Manhattan entrance New York',
+  },
+  {
+    id: '770',
+    name: 'בית הרבי מליובאוויטש – 770',
+    nameEn: '770 Eastern Parkway Chabad HQ',
+    emoji: '🏛',
+    type: 'solo',
+    price: 'חינם',
+    priceFree: true,
+    duration: '1–2 שעות',
+    book: false,
+    note: 'מרכז חבד ברוקלין. ביקור רגשי ומיוחד.',
+    maps: '770 Eastern Parkway Brooklyn New York',
+  },
+  {
+    id: 'dumbo',
+    name: 'DUMBO – תצפית לעיר',
+    nameEn: 'DUMBO Brooklyn Waterfront',
+    emoji: '📸',
+    type: 'both',
+    price: 'חינם',
+    priceFree: true,
+    duration: '1.5 שעות',
+    book: false,
+    note: 'התצפית הכי פוטוגנית לגשר ברוקלין ומנהטן. Washington St ו-Fulton Ferry Park.',
+    maps: 'DUMBO Brooklyn Bridge Park New York',
+  },
+  {
+    id: 'williamsburg',
+    name: 'וויליאמסבורג',
+    nameEn: 'Williamsburg Brooklyn',
+    emoji: '🎨',
+    type: 'both',
+    price: 'חינם',
+    priceFree: true,
+    duration: '2–3 שעות',
+    book: false,
+    note: 'שכונה שיקית. ברים, גרפיטי, אוכל, שוק. Bedford Ave הוא הציר הראשי.',
+    maps: 'Williamsburg Bedford Avenue Brooklyn New York',
+  },
+  {
+    id: 'met',
+    name: 'מוזיאון המט',
+    nameEn: 'The Metropolitan Museum of Art',
+    emoji: '🏛',
+    type: 'both',
+    price: '~$30',
+    priceFree: false,
+    duration: '3–4 שעות',
+    book: false,
+    note: 'אחד ממוזיאוני האמנות הגדולים בעולם. צריך לתכנן מה לראות מראש.',
+    maps: 'Metropolitan Museum of Art New York',
+  },
+  {
+    id: 'amnh',
+    name: 'מוזיאון הטבע וההיסטוריה',
+    nameEn: 'American Museum of Natural History',
+    emoji: '🦕',
+    type: 'both',
+    price: '~$28',
+    priceFree: false,
+    duration: '2–3 שעות',
+    book: false,
+    note: 'דינוזאורים, פלנטריום, תצוגות טבע. מול סנטרל פארק.',
+    maps: 'American Museum of Natural History New York',
+  },
+  {
+    id: 'long-island',
+    name: 'חוף לונג איילנד',
+    nameEn: 'Long Island Beach',
+    emoji: '🏖',
+    type: 'group',
+    price: 'חינם (+ נסיעה)',
+    priceFree: true,
+    duration: 'כל היום',
+    book: false,
+    note: 'Jones Beach או Robert Moses Beach. רכבת מ-Penn Station + אוטובוס.',
+    maps: 'Jones Beach Long Island New York',
+  },
+  {
+    id: 'comedy-cellar',
+    name: 'Comedy Cellar',
+    nameEn: 'Comedy Cellar NYC',
+    emoji: '🎭',
+    type: 'solo',
+    price: '~$12 + 2 שתיות',
+    priceFree: false,
+    duration: '2 שעות',
+    book: true,
+    note: 'קלאסיקה. הזמן מקום מראש באתר. כניסה מינימום $12 + כפיית צריכה.',
+    maps: 'Comedy Cellar MacDougal Street New York',
+  },
+  {
+    id: 'summit',
+    name: 'Summit One Vanderbilt – שקיעה',
+    nameEn: 'Summit One Vanderbilt',
+    emoji: '🌆',
+    type: 'both',
+    price: '~$39–49',
+    priceFree: false,
+    duration: '1.5 שעות',
+    book: true,
+    note: 'תצפית עם אפקטים מיוחדים. הזמן כרטיסים ל-slot של שקיעה מראש!',
+    maps: 'Summit One Vanderbilt New York',
+  },
+  {
+    id: 'free-tour',
+    name: 'Free Walking Tour מנהטן',
+    nameEn: 'Free Walking Tour Manhattan',
+    emoji: '🚶',
+    type: 'both',
+    price: 'חינם (טיפ)',
+    priceFree: true,
+    duration: '2 שעות',
+    book: true,
+    note: 'הרשם מראש באתר freetoursbyfoot.com. יש מסלולים שונים.',
+    maps: 'Times Square New York',
+  },
+  {
+    id: 'rockefeller',
+    name: 'Rockefeller Center',
+    nameEn: 'Rockefeller Center',
+    emoji: '🏗',
+    type: 'both',
+    price: 'חינם / Top of Rock ~$40',
+    priceFree: true,
+    duration: '1–2 שעות',
+    book: false,
+    note: 'מרכז סקייטינג (בחורף), פסלים, חנויות. Top of Rock = תצפית מרהיבה.',
+    maps: 'Rockefeller Center New York',
+  },
+  {
+    id: 'bryant',
+    name: 'Bryant Park',
+    nameEn: 'Bryant Park NYC',
+    emoji: '🌳',
+    type: 'both',
+    price: 'חינם',
+    priceFree: true,
+    duration: '1 שעה',
+    book: false,
+    note: 'פארק אורבני נחמד ליד 42nd St. לפעמים יש שם סרטים בקיץ.',
+    maps: 'Bryant Park New York',
+  },
+  {
+    id: 'central-park',
+    name: 'סנטרל פארק – הופעות יום העצמאות',
+    nameEn: 'Central Park 4th of July Concerts',
+    emoji: '🎆',
+    type: 'both',
+    price: 'חינם',
+    priceFree: true,
+    duration: 'כל הערב',
+    book: false,
+    note: '4 ביולי! זיקוקים ואירועי יום העצמאות. הגע מוקדם לתפוס מקום.',
+    maps: 'Central Park New York',
+  },
+  {
+    id: 'road-island',
+    name: 'לילה בלונג איילנד – קזינו ומסאז׳',
+    nameEn: 'Long Island Night - Casino & Spa',
+    emoji: '🎰',
+    type: 'solo',
+    price: '$$$',
+    priceFree: false,
+    duration: 'לילה שלם',
+    book: true,
+    note: 'עם יוסי. אאוטלט, קזינו, מסאז׳. לבדוק Resorts World Casino או MGM Empire City.',
+    maps: 'Resorts World Casino New York',
+  },
+  {
+    id: 'nick-cannon',
+    name: 'Nick Cannon – Wild N Out Live',
+    nameEn: 'Nick Cannon Wild N Out Barclays Center',
+    emoji: '🎤',
+    type: 'solo',
+    price: 'לפי כרטיס',
+    priceFree: false,
+    duration: '2.5 שעות',
+    book: true,
+    note: 'Barclays Center ברוקלין. קנה כרטיסים מראש באתר Barclays.',
+    maps: 'Barclays Center Brooklyn New York',
+    link: 'https://www.barclayscenter.com/events/detail/nick-cannon-wild-n-out-live-no-filter-2026',
+  },
+  {
+    id: 'hiphop',
+    name: 'הופעת היפ-הופ בברוקלין',
+    nameEn: 'Hip-Hop Show Brooklyn',
+    emoji: '🎧',
+    type: 'solo',
+    price: 'לפי כרטיס',
+    priceFree: false,
+    duration: '2–3 שעות',
+    book: true,
+    note: 'לברר על הופעה ספציפית. Brooklyn Steel / Warsaw / Music Hall of Williamsburg.',
+    maps: 'Brooklyn Steel New York',
+  },
+  {
+    id: 'standup',
+    name: 'סטנדאפ',
+    nameEn: 'Stand-up Comedy NYC',
+    emoji: '😂',
+    type: 'solo',
+    price: '$10–25',
+    priceFree: false,
+    duration: '2 שעות',
+    book: true,
+    note: 'Comedy Cellar, Gotham Comedy Club, Stand Up NY. הזמן מראש.',
+    maps: 'Gotham Comedy Club New York',
+  },
+  {
+    id: 'fanzone',
+    name: 'Fan Zone מונדיאל',
+    nameEn: 'FIFA World Cup Fan Zone',
+    emoji: '⚽',
+    type: 'group',
+    price: 'חינם',
+    priceFree: true,
+    duration: '2–3 שעות',
+    book: false,
+    note: 'Fan Zone ברוקלין ו-Staten Island. לבדוק תאריכים ומשחקים.',
+    maps: 'FIFA World Cup Fan Zone Brooklyn New York',
+  },
+  {
+    id: 'sunset-deck',
+    name: 'תצפית שקיעה – להירגע',
+    nameEn: 'Sunset Observation Deck',
+    emoji: '🌅',
+    type: 'both',
+    price: 'משתנה',
+    priceFree: false,
+    duration: '1–2 שעות',
+    book: false,
+    note: 'Edge Hudson Yards, Top of the Rock, One World Observatory. מבט על השקיעה.',
+    maps: 'Edge Hudson Yards New York',
+  },
+  {
+    id: 'world-cup-game',
+    name: '⚽ משחק מונדיאל – ניו ג׳רזי',
+    nameEn: 'FIFA World Cup Match MetLife Stadium NJ',
+    emoji: '🏟',
+    type: 'group',
+    price: 'כרטיסים בידך',
+    priceFree: false,
+    duration: '4–5 שעות',
+    book: false,
+    locked: true,
+    note: 'עם 2 חברים. NJ Transit מ-Penn Station לסטדיון. ✅ רכבת: Penn Station → Meadowlands Station (קו Meadowlands Rail Line). זמן נסיעה ~45 דקות.',
+    maps: 'MetLife Stadium East Rutherford New Jersey',
+  },
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────
+let schedule = {}; // { "2026-06-21": { morning: [...], afternoon: [...], evening: [...], night: [...] } }
+let sidebarFilter = 'all';
+let currentPickSlot = null; // { dateKey, slotKey }
+let currentDayKey = null;
+let editTarget = null; // { dateKey, slotKey, entryId }
+
+function dateKey(d) {
+  return d.toISOString().slice(0, 10);
+}
+
+function isSoloDay(d) {
+  return d >= new Date(2026, 6, 1); // July 1+
+}
+
+function initSchedule() {
+  // Try load from URL hash
+  if (location.hash && location.hash.length > 1) {
+    try {
+      const data = JSON.parse(atob(location.hash.slice(1)));
+      schedule = data;
+      return;
+    } catch(e) {}
+  }
+  // Pre-fill June 22 with World Cup
+  const june22 = dateKey(new Date(2026, 5, 22));
+  schedule[june22] = { morning: [], afternoon: [], evening: [], night: [] };
+  schedule[june22].afternoon = [{
+    id: 'entry-' + Date.now(),
+    attractionId: 'world-cup-game',
+    time: '15:00',
+    note: '',
+    locked: true,
+  }];
+}
+
+// ─── RENDER CALENDAR ────────────────────────────────────────────────
+function renderCalendar() {
+  const grid = document.getElementById('calendarGrid');
+  grid.innerHTML = '';
+
+  // Top-left corner
+  const corner = document.createElement('div');
+  corner.className = 'col-header';
+  corner.style.background = '#f8fafc';
+  grid.appendChild(corner);
+
+  // Day headers
+  DAYS.forEach(d => {
+    const solo = isSoloDay(d);
+    const today = dateKey(d) === dateKey(new Date());
+    const el = document.createElement('div');
+    el.className = 'col-header day-header' + (solo ? ' solo-day' : '') + (today ? ' today-day' : '');
+    el.innerHTML = `
+      <div class="day-name">יום ${HE_DAYS[d.getDay()]}</div>
+      <div class="day-num">${d.getDate()}</div>
+      <div class="day-month">${HE_MONTHS[d.getMonth()]}${solo ? ' 🎧' : ''}</div>
+    `;
+    el.onclick = () => openDayModal(dateKey(d));
+    el.title = 'לחץ לתצוגת יום מלאה';
+    grid.appendChild(el);
+  });
+
+  // Slot rows
+  SLOTS.forEach(slot => {
+    // Time label
+    const tlabel = document.createElement('div');
+    tlabel.className = 'time-label';
+    tlabel.innerHTML = `<div>${slot.label}</div>`;
+    grid.appendChild(tlabel);
+
+    // Day slots
+    DAYS.forEach(d => {
+      const dk = dateKey(d);
+      const solo = isSoloDay(d);
+      const entries = (schedule[dk] && schedule[dk][slot.key]) || [];
+
+      const cell = document.createElement('div');
+      cell.className = 'slot' + (solo ? ' solo-col' : '');
+      cell.dataset.date = dk;
+      cell.dataset.slot = slot.key;
+
+      // Drag events
+      cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
+      cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
+      cell.addEventListener('drop', e => {
+        e.preventDefault();
+        cell.classList.remove('drag-over');
+        const data = e.dataTransfer.getData('application/json');
+        if (!data) return;
+        const payload = JSON.parse(data);
+        if (payload.type === 'attraction') {
+          addEntry(dk, slot.key, payload.id);
+        } else if (payload.type === 'entry') {
+          moveEntry(payload.fromDate, payload.fromSlot, payload.entryId, dk, slot.key);
+        }
+      });
+
+      if (entries.length === 0) {
+        const addBtn = document.createElement('button');
+        addBtn.className = 'add-btn';
+        addBtn.innerHTML = '＋ הוסף';
+        addBtn.onclick = () => openPickModal(dk, slot.key);
+        cell.appendChild(addBtn);
+      } else {
+        entries.forEach(entry => renderPlacedCard(cell, entry, dk, slot.key));
+        const addMore = document.createElement('button');
+        addMore.className = 'add-btn';
+        addMore.style.minHeight = '40px';
+        addMore.style.marginTop = '4px';
+        addMore.innerHTML = '＋';
+        addMore.onclick = () => openPickModal(dk, slot.key);
+        cell.appendChild(addMore);
+      }
+
+      grid.appendChild(cell);
+    });
+  });
+}
+
+function renderPlacedCard(container, entry, dk, slotKey) {
+  const attr = ATTRACTIONS.find(a => a.id === entry.attractionId);
+  if (!attr) return;
+  const card = document.createElement('div');
+  card.className = 'placed-card type-' + attr.type + (entry.locked ? ' locked' : '');
+  card.draggable = !entry.locked;
+  if (!entry.locked) {
+    card.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('application/json', JSON.stringify({ type: 'entry', fromDate: dk, fromSlot: slotKey, entryId: entry.id }));
+    });
+  }
+
+  card.innerHTML = `
+    <div class="pcard-name">${attr.emoji} ${attr.name}</div>
+    ${entry.time ? `<div class="pcard-time">🕐 ${entry.time}</div>` : ''}
+    <div class="pcard-actions">
+      ${entry.locked ? '<span class="locked-badge">🔒 קבוע</span>' : `<button class="pcard-btn pcard-edit" onclick="openEditModal('${dk}','${slotKey}','${entry.id}')">✏️ ערוך</button><button class="pcard-btn pcard-remove" onclick="removeEntry('${dk}','${slotKey}','${entry.id}')">✕</button>`}
+    </div>
+  `;
+  container.appendChild(card);
+}
+
+// ─── SIDEBAR ────────────────────────────────────────────────────────
+function renderSidebar() {
+  const list = document.getElementById('sidebarList');
+  const q = document.getElementById('sidebarSearch').value.toLowerCase();
+  list.innerHTML = '';
+
+  ATTRACTIONS.filter(a => {
+    if (a.locked) return false;
+    if (sidebarFilter === 'group' && a.type === 'solo') return false;
+    if (sidebarFilter === 'solo' && a.type === 'group') return false;
+    if (q && !a.name.toLowerCase().includes(q) && !a.nameEn.toLowerCase().includes(q)) return false;
+    return true;
+  }).forEach(attr => {
+    const el = document.createElement('div');
+    el.className = 'attraction-card type-' + attr.type;
+    el.draggable = true;
+    el.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('application/json', JSON.stringify({ type: 'attraction', id: attr.id }));
+    });
+    el.innerHTML = `
+      <div class="card-name">${attr.emoji} ${attr.name}</div>
+      <div class="card-meta">
+        <span class="badge ${attr.priceFree ? 'badge-free' : 'badge-paid'}">${attr.price}</span>
+        <span class="badge badge-duration">⏱ ${attr.duration}</span>
+        ${attr.book ? '<span class="badge badge-book">⚠️ הזמן מראש</span>' : ''}
+        ${attr.type === 'group' ? '<span class="badge badge-group">👥 קבוצה</span>' : attr.type === 'solo' ? '<span class="badge badge-solo">🎧 לבד</span>' : '<span class="badge badge-group">👥/🎧</span>'}
+      </div>
+      <a class="maps-link" href="https://maps.google.com/?q=${encodeURIComponent(attr.maps)}" target="_blank" rel="noopener">📍 פתח במפה</a>
+      ${attr.link ? `<br><a class="maps-link" href="${attr.link}" target="_blank" rel="noopener">🎟 אתר הכרטיסים</a>` : ''}
+    `;
+    el.onclick = (e) => {
+      if (e.target.tagName === 'A') return;
+      // Click on sidebar card = open pick for today or first day
+      showToast('גרור לתאריך רצוי, או לחץ על + בתאריך');
+    };
+    list.appendChild(el);
+  });
+}
+
+function setFilter(f) {
+  sidebarFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(t => {
+    t.className = 'filter-tab';
+  });
+  document.getElementById('filter-' + f).className = 'filter-tab active-' + f;
+  renderSidebar();
+}
+
+// ─── DAY MODAL ──────────────────────────────────────────────────────
+function openDayModal(dk) {
+  currentDayKey = dk;
+  const d = new Date(dk + 'T12:00:00');
+  const solo = isSoloDay(d);
+  document.getElementById('dayModalTitle').textContent =
+    `יום ${HE_DAYS[d.getDay()]}, ${d.getDate()} ב${HE_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  document.getElementById('dayModalSubtitle').textContent =
+    solo ? '🎧 יום לבד' : '👥 ימים עם הקבוצה';
+  renderDayModalBody(dk);
+  document.getElementById('dayOverlay').classList.add('open');
+}
+
+function renderDayModalBody(dk) {
+  const body = document.getElementById('dayModalBody');
+  body.innerHTML = '';
+  const dayData = schedule[dk] || {};
+
+  SLOTS.forEach(slot => {
+    const section = document.createElement('div');
+    section.className = 'time-section';
+
+    const label = document.createElement('div');
+    label.className = 'time-section-label';
+    label.innerHTML = `${slot.label} <span style="font-weight:400;font-size:0.72rem;">${slot.time}</span>`;
+    section.appendChild(label);
+
+    const slotDiv = document.createElement('div');
+    slotDiv.className = 'modal-slot';
+
+    const entries = dayData[slot.key] || [];
+    entries.forEach(entry => {
+      const attr = ATTRACTIONS.find(a => a.id === entry.attractionId);
+      if (!attr) return;
+      const card = document.createElement('div');
+      card.className = 'modal-placed-card type-' + attr.type + (entry.locked ? ' locked' : '');
+      card.innerHTML = `
+        <div class="mpc-info">
+          <div class="mpc-name">${attr.emoji} ${attr.name}</div>
+          <div class="mpc-meta">
+            <span class="badge ${attr.priceFree ? 'badge-free' : 'badge-paid'}">${attr.price}</span>
+            <span class="badge badge-duration">⏱ ${attr.duration}</span>
+            ${attr.book ? '<span class="badge badge-book">⚠️ הזמן מראש</span>' : ''}
+            ${entry.time ? `<span>🕐 ${entry.time}</span>` : ''}
+            <a href="https://maps.google.com/?q=${encodeURIComponent(attr.maps)}" target="_blank" rel="noopener" style="color:var(--primary);text-decoration:none;font-size:0.72rem;">📍 מפה</a>
+            ${attr.link ? `<a href="${attr.link}" target="_blank" rel="noopener" style="color:var(--primary);text-decoration:none;font-size:0.72rem;">🎟 כרטיסים</a>` : ''}
+          </div>
+          ${attr.note ? `<div class="mpc-note">${attr.note}</div>` : ''}
+          ${entry.note ? `<div class="mpc-note" style="color:var(--text);">"${entry.note}"</div>` : ''}
+        </div>
+        <div class="mpc-actions">
+          ${!entry.locked ? `
+            <button class="btn btn-sm" style="background:#e0f2fe;color:#0369a1;" onclick="openEditModal('${dk}','${slot.key}','${entry.id}',true)">✏️</button>
+            <button class="btn btn-sm btn-danger" onclick="removeEntry('${dk}','${slot.key}','${entry.id}',true)">✕</button>
+          ` : '<span class="locked-badge">🔒 קבוע</span>'}
+        </div>
+      `;
+      slotDiv.appendChild(card);
+    });
+
+    const addBtn = document.createElement('button');
+    addBtn.className = 'modal-add-btn';
+    addBtn.textContent = '＋ הוסף פעילות';
+    addBtn.onclick = () => openPickModal(dk, slot.key, true);
+    slotDiv.appendChild(addBtn);
+
+    section.appendChild(slotDiv);
+    body.appendChild(section);
+  });
+}
+
+function closeDayModal() {
+  document.getElementById('dayOverlay').classList.remove('open');
+  currentDayKey = null;
+}
+
+function closeDayOverlayIfBg(e) {
+  if (e.target === document.getElementById('dayOverlay')) closeDayModal();
+}
+
+// ─── PICK MODAL ──────────────────────────────────────────────────────
+function openPickModal(dk, slotKey, fromDayModal = false) {
+  currentPickSlot = { dateKey: dk, slotKey, fromDayModal };
+  document.getElementById('pickSearch').value = '';
+  renderPickList();
+  document.getElementById('pickOverlay').classList.add('open');
+}
+
+function renderPickList() {
+  const list = document.getElementById('pickList');
+  const q = document.getElementById('pickSearch').value.toLowerCase();
+  list.innerHTML = '';
+  ATTRACTIONS.filter(a => {
+    if (a.locked) return false;
+    if (q && !a.name.toLowerCase().includes(q) && !a.nameEn.toLowerCase().includes(q)) return false;
+    return true;
+  }).forEach(attr => {
+    const el = document.createElement('div');
+    el.className = 'pick-item';
+    el.innerHTML = `
+      <div class="pi-name">${attr.emoji} ${attr.name}</div>
+      <div class="pi-meta">
+        <span class="badge ${attr.priceFree ? 'badge-free' : 'badge-paid'}">${attr.price}</span>
+        <span class="badge badge-duration">⏱ ${attr.duration}</span>
+        ${attr.book ? '<span class="badge badge-book">⚠️ הזמן מראש</span>' : ''}
+        ${attr.type === 'group' ? '<span class="badge badge-group">👥</span>' : attr.type === 'solo' ? '<span class="badge badge-solo">🎧</span>' : '<span class="badge badge-group">👥/🎧</span>'}
+      </div>
+    `;
+    el.onclick = () => {
+      const { dateKey: dk, slotKey, fromDayModal } = currentPickSlot;
+      addEntry(dk, slotKey, attr.id);
+      closePickModal();
+      if (fromDayModal) renderDayModalBody(dk);
+    };
+    list.appendChild(el);
+  });
+}
+
+function closePickModal() {
+  document.getElementById('pickOverlay').classList.remove('open');
+}
+
+function closePickOverlayIfBg(e) {
+  if (e.target === document.getElementById('pickOverlay')) closePickModal();
+}
+
+// ─── EDIT MODAL ──────────────────────────────────────────────────────
+let editFromDayModal = false;
+
+function openEditModal(dk, slotKey, entryId, fromDayModal = false) {
+  editFromDayModal = fromDayModal;
+  editTarget = { dateKey: dk, slotKey, entryId };
+  const entry = getEntry(dk, slotKey, entryId);
+  if (!entry) return;
+  const attr = ATTRACTIONS.find(a => a.id === entry.attractionId);
+  document.getElementById('editModalTitle').textContent = `✏️ ${attr ? attr.name : 'ערוך'}`;
+  document.getElementById('editTime').value = entry.time || '';
+  document.getElementById('editNote').value = entry.note || '';
+  document.getElementById('editOverlay').classList.add('open');
+}
+
+function saveEdit() {
+  if (!editTarget) return;
+  const { dateKey: dk, slotKey, entryId } = editTarget;
+  const entry = getEntry(dk, slotKey, entryId);
+  if (!entry) return;
+  entry.time = document.getElementById('editTime').value;
+  entry.note = document.getElementById('editNote').value;
+  closeEditModal();
+  renderCalendar();
+  if (editFromDayModal && currentDayKey) renderDayModalBody(currentDayKey);
+  saveState();
+}
+
+function removeEditEntry() {
+  if (!editTarget) return;
+  const { dateKey: dk, slotKey, entryId } = editTarget;
+  closeEditModal();
+  removeEntry(dk, slotKey, entryId, editFromDayModal);
+}
+
+function closeEditModal() {
+  document.getElementById('editOverlay').classList.remove('open');
+  editTarget = null;
+}
+
+function closeEditOverlayIfBg(e) {
+  if (e.target === document.getElementById('editOverlay')) closeEditModal();
+}
+
+// ─── SCHEDULE OPS ───────────────────────────────────────────────────
+function ensureDay(dk) {
+  if (!schedule[dk]) schedule[dk] = { morning: [], afternoon: [], evening: [], night: [] };
+  SLOTS.forEach(s => { if (!schedule[dk][s.key]) schedule[dk][s.key] = []; });
+}
+
+function addEntry(dk, slotKey, attractionId) {
+  ensureDay(dk);
+  schedule[dk][slotKey].push({ id: 'entry-' + Date.now() + Math.random(), attractionId, time: '', note: '' });
+  renderCalendar();
+  saveState();
+}
+
+function removeEntry(dk, slotKey, entryId, fromDayModal = false) {
+  ensureDay(dk);
+  schedule[dk][slotKey] = schedule[dk][slotKey].filter(e => e.id !== entryId);
+  renderCalendar();
+  if (fromDayModal && currentDayKey) renderDayModalBody(currentDayKey);
+  saveState();
+  showToast('פעילות הוסרה');
+}
+
+function moveEntry(fromDate, fromSlot, entryId, toDate, toSlot) {
+  ensureDay(fromDate); ensureDay(toDate);
+  const entry = getEntry(fromDate, fromSlot, entryId);
+  if (!entry || entry.locked) return;
+  schedule[fromDate][fromSlot] = schedule[fromDate][fromSlot].filter(e => e.id !== entryId);
+  schedule[toDate][toSlot].push(entry);
+  renderCalendar();
+  saveState();
+  showToast('פעילות הועברה!');
+}
+
+function getEntry(dk, slotKey, entryId) {
+  return schedule[dk] && schedule[dk][slotKey] && schedule[dk][slotKey].find(e => e.id === entryId);
+}
+
+// ─── SHARE & SAVE ───────────────────────────────────────────────────
+function saveState() {
+  try { location.replace('#' + btoa(JSON.stringify(schedule))); } catch(e) {}
+}
+
+function shareTrip() {
+  saveState();
+  const url = location.href;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => showToast('🔗 קישור הועתק! שתף עם החברים'));
+  } else {
+    prompt('העתק את הקישור הזה:', url);
+  }
+}
+
+// ─── TOAST ──────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ─── INIT ───────────────────────────────────────────────────────────
+initSchedule();
+renderCalendar();
+renderSidebar();
+</script>
+</body>
+</html>
